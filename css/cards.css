@@ -1,0 +1,110 @@
+/*
+ * cards.css: the card "shell" (shared by every card) and shared content patterns.
+ * OWNER: Person A (shell section) / everyone (shared patterns)
+ *
+ * If your card needs a lot of custom CSS, create css/cards/<card-id>.css and
+ * link it in index.html instead of growing this file. Fewer merge conflicts.
+ */
+
+/* ===================== Card shell ===================== */
+.card {
+  background: var(--color-surface);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius);
+}
+
+.card__heading { margin: 0; font-size: 1.125rem; }
+
+/* The whole card header is one big disclosure button */
+.card__toggle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+  width: 100%;
+  min-height: var(--target-min);
+  padding: var(--space-3);
+  padding-right: 3rem; /* room for the chevron */
+  font: inherit;
+  text-align: left;
+  color: inherit;
+  background: none;
+  border: 0;
+  border-radius: var(--radius);
+  cursor: pointer;
+}
+.card__toggle:hover { background: var(--color-bg); }
+
+/* Chevron: points down when collapsed, up when expanded */
+.card__toggle::after {
+  content: "";
+  position: absolute;
+  right: 1.25rem;
+  top: 50%;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-right: 0.15rem solid currentColor;
+  border-bottom: 0.15rem solid currentColor;
+  transform: translateY(-75%) rotate(45deg);
+}
+.card__toggle[aria-expanded="true"]::after {
+  transform: translateY(-25%) rotate(-135deg);
+}
+
+.card__title { font-weight: 700; }
+.card__summary {
+  font-weight: 400;
+  font-size: 0.9375rem;
+  color: var(--color-muted);
+}
+
+.card__tools {
+  display: flex;
+  gap: var(--space-2);
+  padding: 0 var(--space-3) var(--space-3);
+}
+
+.card__body {
+  padding: var(--space-3);
+  border-top: 0.0625rem solid var(--color-border);
+}
+.card__open { margin: var(--space-3) 0 0; }
+
+/* ===================== Shared content patterns ===================== */
+
+/* Label/value tiles (Combat, Spellcasting...) */
+.stat-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
+  gap: var(--space-2);
+  margin: 0 0 var(--space-3);
+}
+.stat {
+  padding: var(--space-2);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius);
+}
+.stat dt { font-size: 0.875rem; color: var(--color-muted); }
+.stat dd { margin: 0; font-size: 1.25rem; font-weight: 700; }
+.stat--primary { grid-column: 1 / -1; border-width: 0.125rem; }
+.stat--primary dd { font-size: 1.75rem; }
+
+/* Simple label: value list (Identity, Equipment...) */
+.pair-list { margin: 0 0 var(--space-3); }
+.pair-list div { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+.pair-list dt { font-weight: 700; }
+.pair-list dt::after { content: ":"; }
+.pair-list dd { margin: 0; }
+
+.plain-list { margin: 0 0 var(--space-3); padding-left: 1.25rem; }
+.plain-list li + li { margin-top: var(--space-1); }
+
+/* Tables (Abilities & Saves) */
+.data-table { width: 100%; border-collapse: collapse; margin-bottom: var(--space-3); }
+.data-table th, .data-table td {
+  padding: var(--space-1) var(--space-2);
+  border-bottom: 0.0625rem solid var(--color-border);
+  text-align: left;
+}
+.data-table thead th { font-size: 0.875rem; color: var(--color-muted); }

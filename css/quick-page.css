@@ -1,0 +1,42 @@
+/*
+ * quick-page.css: the Quick Page overlay.
+ * OWNER: Person A
+ */
+
+.quick-page {
+  padding: 0; /* padding lives on __inner so a click on the <dialog> itself = backdrop click */
+  width: min(28rem, calc(100% - 2rem));
+  max-height: calc(100% - 2rem);
+  border: 0.125rem solid var(--color-accent);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+.quick-page::backdrop { background: rgb(0 0 0 / 0.5); }
+
+.quick-page__inner { padding: var(--space-4); }
+
+.quick-page__hint { color: var(--color-muted); }
+
+/* Number keys only make sense with a keyboard; hide that hint on touch-only devices */
+@media (hover: none) and (pointer: coarse) {
+  .quick-page__hint-keys { display: none; }
+}
+
+.quick-page__list {
+  margin: 0 0 var(--space-3);
+  padding-left: 2rem; /* room for the visible 1-7 numbers */
+}
+.quick-page__list li { margin-bottom: var(--space-1); }
+.quick-page__list a {
+  display: flex;
+  align-items: center;
+  min-height: var(--target-min);
+  padding: var(--space-1) var(--space-2);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius);
+  text-decoration: none;
+  color: var(--color-text);
+}
+.quick-page__list a:hover { background: var(--color-accent-soft); }
+.quick-page__list a[aria-current="page"] { font-weight: 700; border-width: 0.125rem; }

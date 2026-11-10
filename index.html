@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WASD Character Sheet</title>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/layout.css">
+  <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/quick-page.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <!-- ============ HEADER ZONE (owner: Person A) ============ -->
+  <header class="zone-header">
+    <p class="app-name">WASD Character Sheet</p>
+    <!-- Filled by js/app.js, e.g. "Kira · Rogue 4 · HP 27/31 · AC 15" -->
+    <p class="char-summary" id="char-summary">Loading character…</p>
+  </header>
+
+  <!-- ============ CONTENT ZONE ============ -->
+  <main id="main" class="zone-content" tabindex="-1">
+
+    <!-- HUB VIEW (route: #/). Cards are injected by js/hub.js. -->
+    <div id="view-hub" class="view">
+      <div class="view-heading">
+        <h1 id="hub-title" tabindex="-1">Character overview</h1>
+        <div class="view-heading__actions">
+          <button type="button" id="edit-layout" class="btn" aria-pressed="false">Edit layout</button>
+          <button type="button" id="reset-layout" class="btn" hidden>Reset order</button>
+        </div>
+      </div>
+      <!-- role="list" keeps list semantics in Safari/VoiceOver when list-style is removed -->
+      <ol id="card-list" class="card-list" role="list" aria-labelledby="hub-title"></ol>
+    </div>
+
+    <!-- CARD VIEW (route: #/card/<id>). Filled by js/router.js. -->
+    <div id="view-card" class="view" hidden>
+      <a href="#/" class="back-link"><span aria-hidden="true">←</span> Back to hub</a>
+      <h1 id="card-view-title" tabindex="-1"></h1>
+      <div id="card-view-body" class="card-view-body"></div>
+    </div>
+
+  </main>
+
+  <!-- ============ ACTION ZONE (shown on every screen) ============ -->
+  <nav class="zone-action" aria-label="Sheet actions">
+    <!-- Visible status message + screen-reader announcements (see WASD.announce) -->
+    <p id="status" class="status" role="status"></p>
+    <div class="zone-action__buttons">
+      <button type="button" id="open-quick-page" class="btn" aria-haspopup="dialog">Quick Page</button>
+      <button type="button" id="roll-btn" class="btn">Roll</button>
+      <button type="button" id="level-up-btn" class="btn">Level Up</button>
+    </div>
+  </nav>
+
+  <!-- ============ QUICK PAGE OVERLAY (owner: Person A) ============ -->
+  <!-- Native <dialog> + showModal(): background becomes inert and Escape closes it. -->
+  <dialog id="quick-page" class="quick-page" aria-labelledby="quick-page-title">
+    <div class="quick-page__inner">
+      <h2 id="quick-page-title">Quick Page</h2>
+      <p class="quick-page__hint">Choose a card<span class="quick-page__hint-keys">, or press its number key</span>.</p>
+      <ol id="quick-page-list" class="quick-page__list"></ol>
+      <button type="button" id="close-quick-page" class="btn">Close</button>
+    </div>
+  </dialog>
+
+  <!-- Load order matters: registry → data → cards → screens → actions → app -->
+  <script src="js/registry.js"></script>
+  <script src="js/data/sample-character.js"></script>
+
+  <script src="js/cards/combat.js"></script>
+  <script src="js/cards/abilities.js"></script>
+  <script src="js/cards/skills.js"></script>
+  <script src="js/cards/spellcasting.js"></script>
+  <script src="js/cards/equipment.js"></script>
+  <script src="js/cards/features.js"></script>
+  <script src="js/cards/identity.js"></script>
+
+  <script src="js/hub.js"></script>
+  <script src="js/router.js"></script>
+  <script src="js/quick-page.js"></script>
+
+  <script src="js/actions/roll.js"></script>
+  <script src="js/actions/level-up.js"></script>
+
+  <script src="js/app.js"></script>
+</body>
+</html>

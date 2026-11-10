@@ -1,0 +1,112 @@
+/*
+ * layout.css: the three screen zones (header / content / action) and the card grid.
+ * OWNER: Person A
+ *
+ * Mobile-first: one column by default, more columns as the screen widens.
+ * Breakpoints are in rem, so zooming in on a laptop drops back to one column.
+ */
+
+body {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Header zone ---- */
+.zone-header {
+  padding: var(--space-3);
+  background: var(--color-accent-soft);
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+.app-name {
+  margin: 0;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
+.char-summary {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 700;
+}
+
+/* ---- Content zone ---- */
+.zone-content {
+  flex: 1;
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  padding: var(--space-3);
+}
+
+.view-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+.view-heading h1 { margin: 0; }
+.view-heading__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
+
+/* Card grid. Reading order = DOM order = row by row, left to right.
+   Never use `order`, `grid-auto-flow: dense` or manual placement here:
+   it would make the visual order differ from the screen-reader order. */
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+}
+
+@media (min-width: 48rem) {
+  .card-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 75rem) {
+  .card-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* Card view (single card, full width) */
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--target-min);
+  margin-bottom: var(--space-2);
+}
+.card-view-body { max-width: 48rem; }
+
+/* ---- Action zone ---- */
+.zone-action {
+  position: sticky;
+  bottom: 0;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-accent-soft);
+  border-top: 0.0625rem solid var(--color-border);
+}
+.zone-action__buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+.zone-action__buttons .btn { flex: 1 1 0; max-width: 12rem; }
+
+.status {
+  margin: 0;
+  text-align: center;
+  font-weight: 600;
+}
+.status:not(:empty) { margin-bottom: var(--space-2); }
+
+/* Short viewports (e.g. 400% zoom, landscape phone): don't let the
+   sticky bar cover the content; let it scroll with the page instead. */
+@media (max-height: 30rem) {
+  .zone-action { position: static; }
+}

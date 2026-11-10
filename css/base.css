@@ -1,0 +1,122 @@
+/*
+ * base.css: design tokens, reset, typography, focus, buttons, helpers.
+ * OWNER: Person A
+ *
+ * RULE: size text and spacing in rem so everything scales with browser zoom
+ * and the user's default font-size setting. Avoid px for font sizes.
+ */
+
+:root {
+  /* Colors (placeholder palette; all text pairs meet WCAG AA contrast) */
+  --color-bg: #faf6f2;
+  --color-surface: #ffffff;
+  --color-text: #1f1a17;
+  --color-muted: #5c514a;
+  --color-border: #8a776b;
+  --color-accent: #8f1d1d;
+  --color-accent-soft: #f3dcd6;
+  --color-on-accent: #ffffff;
+  --color-focus: #0b57d0;
+
+  /* Spacing */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 1rem;
+  --space-4: 1.5rem;
+
+  --radius: 0.5rem;
+  --target-min: 2.75rem; /* 44px minimum touch target at default zoom */
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* TODO(Person A): add a dark theme under @media (prefers-color-scheme: dark). */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* The `hidden` attribute must always win, even over display:flex/grid rules. */
+[hidden] { display: none !important; }
+
+html { font-size: 100%; } /* never set a px value here: respects user settings */
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--space-2); }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.25rem; }
+h3 { font-size: 1.0625rem; }
+p { margin: 0 0 var(--space-2); }
+
+a { color: var(--color-accent); }
+
+/* ---- Focus: always visible for keyboard users ---- */
+:focus-visible {
+  outline: 0.1875rem solid var(--color-focus);
+  outline-offset: 0.125rem;
+}
+/* Elements we focus from script (headings, <main>) don't need a ring */
+[tabindex="-1"]:focus { outline: none; }
+
+/* ---- Buttons ---- */
+.btn {
+  font: inherit;
+  min-height: var(--target-min);
+  padding: var(--space-2) var(--space-3);
+  border: 0.125rem solid var(--color-accent);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-accent);
+  font-weight: 600;
+  cursor: pointer;
+}
+.btn:hover { background: var(--color-accent-soft); }
+.btn[aria-pressed="true"] {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.btn--small { padding: var(--space-1) var(--space-2); font-size: 0.9375rem; }
+/* aria-disabled (not `disabled`) so the button keeps focus after a move */
+.btn[aria-disabled="true"] {
+  border-style: dashed;
+  color: var(--color-muted);
+  border-color: var(--color-muted);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+/* ---- Helpers ---- */
+.visually-hidden {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  margin: -1px; padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-2);
+  top: -10rem;
+  z-index: 100;
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+  border: 0.125rem solid var(--color-accent);
+}
+.skip-link:focus { top: var(--space-2); }
+
+.tag {
+  display: inline-block;
+  padding: 0 var(--space-1);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: 0.25rem;
+  font-size: 0.8125rem;
+  color: var(--color-muted);
+}
