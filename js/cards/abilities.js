@@ -25,12 +25,14 @@ WASD.registerCard({
       </tr>`).join('');
 
     return `
+      <div class="table-scroll" tabindex="0" role="region" aria-label="Ability scores and saving throws">
       <table class="data-table">
         <caption class="visually-hidden">Ability scores and saving throws</caption>
         <thead>
           <tr><th scope="col">Ability</th><th scope="col">Score</th><th scope="col">Modifier</th><th scope="col">Save</th></tr>
         </thead>
         <tbody>${rows}</tbody>
-      </table>`;
+      </table>
+      </div>`;
   },
 });

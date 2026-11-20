@@ -17,7 +17,9 @@
       var s = {};
       try { s = JSON.parse(localStorage.getItem('wasd.settings.v1')) || {}; } catch (e) {}
       var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
-      var theme = s.theme || (mq('(prefers-contrast: more)') ? 'contrast' : mq('(prefers-color-scheme: dark)') ? 'dark' : 'parchment');
+      var known = ['parchment', 'dark', 'contrast', 'forest', 'arcane'];
+      var theme = known.indexOf(s.theme) >= 0 ? s.theme
+        : mq('(prefers-contrast: more)') ? 'contrast' : mq('(prefers-color-scheme: dark)') ? 'dark' : 'parchment';
       document.documentElement.setAttribute('data-theme', theme);
       if (s.largeText) document.documentElement.setAttribute('data-text', 'large');
     })();

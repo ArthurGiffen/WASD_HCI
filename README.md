@@ -71,6 +71,8 @@ WASD.updateCharacter((raw) => { raw.combat.hp.current -= 5; });   // saves, reca
 
 The redraw keeps keyboard focus on the element with the same `id`, so give buttons inside cards stable ids.
 The player's character is saved in `localStorage`; `WASD.resetCharacter()` restores Kira.
+If you change the **shape** of the saved character (rename or move fields), bump `SCHEMA` in
+`js/character-store.js` and in `sample-character.js`. Old saved data is then ignored instead of breaking the page.
 We use plain `<script>` tags (not ES modules) so the page works when opened straight from disk.
 
 ## Screens and zones

@@ -88,11 +88,16 @@
     if (focusHeading) heading.focus();
   }
 
-  /** Redraw the same step after a change, keeping focus on the same control. */
+  /**
+   * Redraw the same step after a change, keeping focus on the same control.
+   * If that control is gone (e.g. "Roll d8" is replaced by the result), focus
+   * moves to Next, the logical next action, so focus never falls out of the dialog.
+   */
   function redraw(focusId) {
     body.innerHTML = step().render(state);
     const el = focusId && document.getElementById(focusId);
     if (el) el.focus();
+    else nextBtn.focus();
   }
 
   // Save every named field into state.fields.

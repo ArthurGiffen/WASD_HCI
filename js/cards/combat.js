@@ -17,6 +17,12 @@
   const ui = { amount: '1', temp: '0', error: '', tempError: '' };
   WASD.lastRoll = null; // { title, lines: [...], total, note } shown under "Last roll"
 
+  // A new or reset character starts with a clean card: no old errors, rolls or typed amounts.
+  document.addEventListener('wasd:character-replaced', () => {
+    Object.assign(ui, { amount: '1', temp: '0', error: '', tempError: '' });
+    WASD.lastRoll = null;
+  });
+
   const signed = (n) => WASD.signed(n);
   const whole = (text) => (/^\d+$/.test(String(text).trim()) ? Number(String(text).trim()) : null);
 
@@ -236,7 +242,7 @@
         <div class="hp-form">
           <label for="temp-hp">Temporary HP</label>
           <input id="temp-hp" class="input" type="number" inputmode="numeric" min="0" max="999" step="1"
-                 value="${esc(ui.temp)}" data-input="temp-hp"${ui.tempError ? ' aria-invalid="true" aria-describedby="temp-error"' : ''}>
+                 value="${esc(ui.tempError ? ui.temp : String(hp.temp))}" data-input="temp-hp"${ui.tempError ? ' aria-invalid="true" aria-describedby="temp-error"' : ''}>
           <div class="hp-form__buttons">
             <button type="button" class="btn" id="temp-set" data-action="temp-set">Set temp HP</button>
           </div>

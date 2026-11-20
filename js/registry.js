@@ -52,7 +52,8 @@ window.WASD = window.WASD || {};
   WASD.inputs = {};
   document.addEventListener('click', (event) => {
     const el = event.target.closest('[data-action]');
-    if (!el || el.getAttribute('aria-disabled') === 'true') return;
+    if (!el) { WASD.lastActionId = ''; return; }
+    if (el.getAttribute('aria-disabled') === 'true') return;
     // Remember which control was used: Safari doesn't focus a button when it is clicked,
     // and the redraw after the action needs to know where focus belongs.
     WASD.lastActionId = el.id || '';

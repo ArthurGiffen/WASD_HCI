@@ -47,6 +47,7 @@
 
     const notYet = 'Not written yet.';
     return {
+      schema: WASD.SCHEMA,
       identity: {
         name: f.charName.trim(), race: f.race, className: f.className, subclass: '',
         level: 1, background: 'Not chosen yet', alignment: 'Not chosen yet', experience: 0,

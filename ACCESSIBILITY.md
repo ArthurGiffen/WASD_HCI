@@ -12,6 +12,8 @@ How the WASD Character Sheet was checked, what was fixed, and what still needs a
 | Focus not hidden by the sticky bar | Focused every control on the Combat page at phone width, normal and Large text | 13 of 13 fully visible |
 | Keyboard and focus | Scripted tests of every flow: dialogs move focus in and return it, Escape closes, tabs use the arrow keys, focus survives every redraw | 127 checks pass |
 | Demo path | `DEMO-SCRIPT.md` run as a test; every number in the script checked | Pass |
+| Random "monkey" testing | 17,000 random keyboard actions (buttons, tabs, radios, dropdowns, Escape, junk typed into number fields) with checks after every step: no errors, HP in range, no negatives, no duplicate ids, screen and saved data match, focus never lost | 0 failures after fixes |
+| Saved data | Old-format, corrupt and unknown saved data planted before load; page reloaded mid-test | App always loads; changes survive reload |
 
 ## What was fixed
 
@@ -23,6 +25,8 @@ How the WASD Character Sheet was checked, what was fixed, and what still needs a
 6. **Windows High Contrast (forced colors):** pressed buttons, the selected tab, the selected choice and the focus ring now stay visible when Windows replaces the app's colors.
 7. **Extra Tab stops in tabs:** tab panels that already contain buttons no longer add an extra stop. Text-only panels keep one so their text can be reached and scrolled.
 8. **Ignored label on coin counts:** removed an `aria-label` on a plain `<span>` (screen readers ignore it). The visible "Gold 15" already reads correctly.
+9. **Focus fell out of the Level Up dialog** (found by random testing): pressing "Roll d8" replaces the button with the result, so keyboard focus dropped onto the page behind the dialog. Focus now moves to Next whenever the pressed control disappears.
+10. **Abilities table with Large text on a phone** was wider than the screen. It now scrolls inside its own labelled box (allowed for data tables), so the page itself never scrolls sideways.
 
 Built in during this pass: five themes (Parchment, Dark, High contrast, Forest, Arcane) and Large text (125%), in a keyboard-accessible Settings dialog. The first visit follows the device's dark-mode or more-contrast setting.
 

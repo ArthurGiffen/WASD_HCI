@@ -7,6 +7,8 @@
  * player's edited copy is saved to localStorage by js/character-store.js.
  */
 WASD.sampleCharacter = {
+  schema: 2, // saved-data version, see js/character-store.js
+
   identity: {
     name: 'Kira',
     race: 'Human',
