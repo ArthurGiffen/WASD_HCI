@@ -19,7 +19,8 @@
 
   let order = loadOrder();
   let editing = false;
-  const expanded = new Set(); // ids of cards that are currently open
+  const DEFAULT_OPEN = ['combat']; // Combat starts open: the stats players look up most are visible at once
+  const expanded = new Set(DEFAULT_OPEN); // ids of cards that are currently open
 
   function loadOrder() {
     try {
@@ -53,8 +54,11 @@
           <h2 class="card__heading">
             <button type="button" class="card__toggle" id="card-${id}-toggle"
                     aria-expanded="${isOpen}" aria-controls="card-${id}-body">
-              <span class="card__title" id="card-${id}-title">${title}</span>
-              <span class="card__summary">${esc(card.summary(ch))}</span>
+              <span class="card__icon" aria-hidden="true">${WASD.icon(card.icon || 'star')}</span>
+              <span class="card__text">
+                <span class="card__title" id="card-${id}-title">${title}</span>
+                <span class="card__summary">${esc(card.summary(ch))}</span>
+              </span>
             </button>
           </h2>
           <div class="card__tools"${editing ? '' : ' hidden'}>
@@ -124,10 +128,17 @@
       : 'Edit layout off.');
   });
 
-  resetBtn.addEventListener('click', () => {
+  /** Back to the default order with only Combat open (used by Reset layout and Reset demo). */
+  function resetOrder() {
     order = DEFAULT_ORDER.slice();
+    expanded.clear();
+    DEFAULT_OPEN.forEach((id) => expanded.add(id));
     saveOrder();
     render();
+  }
+
+  resetBtn.addEventListener('click', () => {
+    resetOrder();
     WASD.announce('Card order reset to default.');
   });
 
@@ -135,6 +146,7 @@
 
   WASD.hub = {
     render,
+    resetOrder,
     getOrder: () => order.slice(),
     focusCard(id) {
       const el = document.getElementById(`card-${id}-toggle`);

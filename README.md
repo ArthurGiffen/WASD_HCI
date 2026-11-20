@@ -6,7 +6,8 @@ A modular, responsive, accessible redesign of the D&D 5e character sheet. The sh
 **cards**, ordered by how often players use them at the table. Players can collapse, open and
 reorder cards. The visual order is also the screen-reader reading order.
 
-> Status: **bare-bones starter**. Structure and navigation only. No styling polish, no game logic.
+> Status: **demo build**. Combat card (HP, attack rolls), dice roller, all 7 cards, style guide applied, Reset demo.
+> Still to build: Level Up flow, guided build, themes, full accessibility pass. See `PLAN.md`.
 
 ## How to run
 
@@ -22,26 +23,45 @@ No install, no build step.
 index.html                   Page shell: header / content / action zones, Quick Page dialog, script tags
 README.md                    This file
 AI-DISCLOSURE.md             Record of AI-generated work (course requirement)
+fonts/                       Atkinson Hyperlegible (bundled, so the page works offline)
 css/
-  base.css                   Tokens (colors, spacing in rem), reset, focus ring, buttons, helpers
+  base.css                   Tokens (colors from the style guide, spacing in rem), font, focus ring, buttons, helpers
   layout.css                 Header / content / action zones and the responsive card grid
   cards.css                  Card shell + shared content patterns (stat tiles, tables, lists)
+  components.css             Combat HP/attacks, tabs, equipment rows, modal dialogs, dice roller
   quick-page.css             Quick Page overlay
 js/
-  registry.js                window.WASD namespace, WASD.registerCard(), esc(), announce()
-  data/sample-character.js   Kira, Human Rogue 4: the ONLY place character data lives
+  registry.js                window.WASD namespace, registerCard(), esc(), announce(), icon(), data-action click handling
+  dialog.js                  WASD.modal() for <dialog>s and WASD.confirm() (yes/no)
+  tabs.js                    WASD.tabs.render(): one accessible tab component (Equipment, Features)
+  dice.js                    Dice rolling (no DOM)
+  data/sample-character.js   Kira, Human Rogue 4: RAW inputs only (scores, proficiencies, level, gear)
+  rules.js                   5e math: WASD.rules.derive(raw) -> the sheet the cards read (mods, saves, AC…)
+  character-store.js         Load/save (localStorage), WASD.updateCharacter(), WASD.resetCharacter()
   cards/                     One file per card module
     combat.js  abilities.js  skills.js  spellcasting.js
     equipment.js  features.js  identity.js
   hub.js                     Hub screen: renders cards, collapse/expand, Edit layout (Up/Down)
   router.js                  #/ = Hub, #/card/<id> = Card view; moves focus on navigation
   quick-page.js              Quick Page overlay: open/close, keys 1–7, focus in/out, Escape
-  actions/roll.js            Roll button (stub)
+  actions/roll.js            Roll button: dice roller dialog
+  actions/reset.js           Reset demo button (confirm, then restore Kira at level 4)
   actions/level-up.js        Level Up button (stub)
   app.js                     Bootstrap: loads the character, fills the header, starts the router
 ```
 
-Script load order in `index.html` matters: registry → data → cards → hub/router/quick-page → actions → app.
+Script load order in `index.html` matters: registry → data → rules/store → cards → hub/router/quick-page → actions → app.
+
+## Changing the character
+
+Cards only **read** `ch` (the derived sheet). To change something, edit the raw inputs through the store:
+
+```js
+WASD.updateCharacter((raw) => { raw.combat.hp.current -= 5; });   // saves, recalculates, redraws
+```
+
+The redraw keeps keyboard focus on the element with the same `id`, so give buttons inside cards stable ids.
+The player's character is saved in `localStorage`; `WASD.resetCharacter()` restores Kira.
 We use plain `<script>` tags (not ES modules) so the page works when opened straight from disk.
 
 ## Screens and zones
@@ -74,7 +94,8 @@ WASD.registerCard({
 ```
 
 Rules:
-- **Never hardcode character data in a card.** Read it from `ch` (the object in `sample-character.js`).
+- **Never hardcode character data in a card.** Read it from `ch` (built by `WASD.rules.derive()` from `sample-character.js`).
+- **No game math in cards.** Add calculations to `js/rules.js`.
 - **Escape text** from the character with `WASD.esc()` before putting it in HTML.
 - **Sub-headings use `ctx.sub`**, never a fixed `<h3>`, so the heading outline is right on both screens.
 - Don't put `<h1>`/`<h2>` in a card body. The shell already provides the card heading.

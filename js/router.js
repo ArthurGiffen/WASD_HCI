@@ -35,6 +35,9 @@
     if (card) {
       cardTitle.textContent = card.title;
       cardBody.innerHTML = card.render(WASD.character, { view: 'page', sub: 'h2' });
+      // Empty the hub list while a card page is showing: otherwise the same
+      // control ids would exist twice on the page.
+      document.getElementById('card-list').innerHTML = '';
       hubView.hidden = true;
       cardView.hidden = false;
       document.title = `${card.title} · ${name} · WASD Character Sheet`;
@@ -69,6 +72,23 @@
     go(hash) {
       if (location.hash === hash) show();
       else location.hash = hash;
+    },
+    /**
+     * Redraw the current screen after the character changes, WITHOUT moving
+     * focus or scrolling. Focus goes back to the element with the same id, so
+     * give every interactive control inside a card a stable id.
+     */
+    refresh() {
+      const active = document.activeElement;
+      const focusedId = WASD.lastActionId || (active && active.id) || '';
+      const id = currentCardId();
+      const card = id && WASD.getCard(id);
+      if (card) cardBody.innerHTML = card.render(WASD.character, { view: 'page', sub: 'h2' });
+      else WASD.hub.render();
+      if (focusedId) {
+        const el = document.getElementById(focusedId);
+        if (el) el.focus({ preventScroll: true });
+      }
     },
   };
 })(window.WASD);

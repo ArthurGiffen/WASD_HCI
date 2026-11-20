@@ -6,17 +6,26 @@
 (function (WASD) {
   'use strict';
 
-  // TODO(Person C): replace with loading the player's own character
-  // (localStorage / JSON import) once character creation exists.
-  WASD.character = WASD.sampleCharacter;
+  // Loads the saved character from localStorage, or the sample (Kira) the first time.
+  WASD.loadCharacter();
 
-  /** Header zone summary, e.g. "Kira · Rogue 4 · HP 27/31 · AC 15". */
+  /** Header zone: character name plus Level / HP / AC tiles. */
   WASD.renderHeader = function () {
     const ch = WASD.character;
     const id = ch.identity;
     const hp = ch.combat.hp;
-    document.getElementById('char-summary').textContent =
-      `${id.name} · ${id.className} ${id.level} · HP ${hp.current}/${hp.max} · AC ${ch.combat.armorClass}`;
+    const { esc } = WASD;
+    document.getElementById('char-name').textContent = id.name;
+    document.getElementById('header-stats').innerHTML = `
+      <div class="header-stat"><dt>${esc(id.race)} ${esc(id.className)}</dt><dd>Level ${id.level}</dd></div>
+      <div class="header-stat"><dt>Hit points</dt><dd>${hp.current}<span aria-hidden="true">/</span><span class="visually-hidden"> of </span>${hp.max}</dd></div>
+      <div class="header-stat"><dt>Armor class</dt><dd>${ch.combat.armorClass}</dd></div>`;
+  };
+
+  /** Called by WASD.updateCharacter() after every change. */
+  WASD.refresh = function () {
+    WASD.renderHeader();
+    WASD.router.refresh();
   };
 
   WASD.renderHeader();

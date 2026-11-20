@@ -6,6 +6,7 @@
 WASD.registerCard({
   id: 'spellcasting',
   title: 'Spellcasting',
+  icon: 'star',
 
   summary(ch) {
     const s = ch.spellcasting;
@@ -22,8 +23,6 @@ WASD.registerCard({
     const { esc, signed } = WASD;
     const h = ctx.sub;
 
-    // TODO(Person C): real layout: slots tracker, prepared toggle, spell details, Add Spell button.
-    // Shape of ch.spellcasting is sketched in js/data/sample-character.js.
     const spells = (s.spells || []).map((sp) => `<li>${esc(sp.name)} <span class="tag">level ${sp.level}</span></li>`).join('');
 
     return `

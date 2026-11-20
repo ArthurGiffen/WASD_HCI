@@ -1,13 +1,10 @@
 /*
- * sample-character.js: ONE hardcoded example character for building and testing.
- * OWNER: Person C
+ * sample-character.js: the example character "Kira" (Human Rogue 4, Thief).
  *
- * All data lives here, never inside the card files.
- *
- * Values like modifiers and skill bonuses are stored ALREADY CALCULATED because
- * there is no game-logic code yet.
- * TODO(Person C): once we add rules code, keep only the raw inputs here
- * (scores, proficiencies, level) and calculate the rest.
+ * RAW INPUTS ONLY. Modifiers, saves, skill bonuses, AC, to-hit, proficiency
+ * bonus, passive Perception and spell DC are calculated by js/rules.js.
+ * This is the starting character (and what "Reset demo" restores); the
+ * player's edited copy is saved to localStorage by js/character-store.js.
  */
 WASD.sampleCharacter = {
   identity: {
@@ -21,73 +18,70 @@ WASD.sampleCharacter = {
     experience: 2700,
   },
 
-  proficiencyBonus: 2,
+  abilityScores: { str: 10, dex: 16, con: 14, int: 12, wis: 12, cha: 14 },
+
+  proficiencies: {
+    saves: ['dex', 'int'],
+    // 'proficient' or 'expertise'. Skills not listed are untrained.
+    skills: {
+      Acrobatics: 'proficient',
+      Deception: 'proficient',
+      Investigation: 'proficient',
+      Perception: 'proficient',
+      'Sleight of Hand': 'expertise',
+      Stealth: 'expertise',
+    },
+  },
 
   combat: {
-    armorClass: 15,
     hp: { current: 27, max: 31, temp: 0 },
-    initiative: 3,
+    hitDie: 8,
     speed: 30,
-    hitDice: '4d8',
+    // ability: 'str' | 'dex' | 'finesse' (better of Str/Dex)
+    // damage is a LIST of parts so each damage type is rolled and shown separately.
+    // itemId: the attack only shows while that equipment item is equipped.
     attacks: [
-      { name: 'Shortsword', toHit: 5, damage: '1d6+3 piercing' },
-      { name: 'Shortbow', toHit: 5, damage: '1d6+3 piercing', range: '80/320 ft' },
-      { name: 'Sneak Attack', toHit: null, damage: '+2d6', note: 'once per turn' },
+      { id: 'shortsword', itemId: 'shortsword', name: 'Shortsword', ability: 'finesse', damage: [{ dice: '1d6', type: 'piercing' }] },
+      { id: 'shortbow', itemId: 'shortbow', name: 'Shortbow', ability: 'dex', damage: [{ dice: '1d6', type: 'piercing' }], range: '80/320 ft' },
+      { id: 'sneak', name: 'Sneak Attack', special: 'sneakAttack', note: 'once per turn' },
     ],
   },
 
-  abilities: [
-    { key: 'str', name: 'Strength',     score: 10, mod: 0, save: 0, saveProficient: false },
-    { key: 'dex', name: 'Dexterity',    score: 16, mod: 3, save: 5, saveProficient: true },
-    { key: 'con', name: 'Constitution', score: 14, mod: 2, save: 2, saveProficient: false },
-    { key: 'int', name: 'Intelligence', score: 12, mod: 1, save: 3, saveProficient: true },
-    { key: 'wis', name: 'Wisdom',       score: 12, mod: 1, save: 1, saveProficient: false },
-    { key: 'cha', name: 'Charisma',     score: 14, mod: 2, save: 2, saveProficient: false },
-  ],
-
-  // proficiency: 'none' | 'proficient' | 'expertise'
-  skills: [
-    { name: 'Acrobatics',      ability: 'dex', bonus: 5, proficiency: 'proficient' },
-    { name: 'Animal Handling', ability: 'wis', bonus: 1, proficiency: 'none' },
-    { name: 'Arcana',          ability: 'int', bonus: 1, proficiency: 'none' },
-    { name: 'Athletics',       ability: 'str', bonus: 0, proficiency: 'none' },
-    { name: 'Deception',       ability: 'cha', bonus: 4, proficiency: 'proficient' },
-    { name: 'History',         ability: 'int', bonus: 1, proficiency: 'none' },
-    { name: 'Insight',         ability: 'wis', bonus: 1, proficiency: 'none' },
-    { name: 'Intimidation',    ability: 'cha', bonus: 2, proficiency: 'none' },
-    { name: 'Investigation',   ability: 'int', bonus: 3, proficiency: 'proficient' },
-    { name: 'Medicine',        ability: 'wis', bonus: 1, proficiency: 'none' },
-    { name: 'Nature',          ability: 'int', bonus: 1, proficiency: 'none' },
-    { name: 'Perception',      ability: 'wis', bonus: 3, proficiency: 'proficient' },
-    { name: 'Performance',     ability: 'cha', bonus: 2, proficiency: 'none' },
-    { name: 'Persuasion',      ability: 'cha', bonus: 2, proficiency: 'none' },
-    { name: 'Religion',        ability: 'int', bonus: 1, proficiency: 'none' },
-    { name: 'Sleight of Hand', ability: 'dex', bonus: 7, proficiency: 'expertise' },
-    { name: 'Stealth',         ability: 'dex', bonus: 7, proficiency: 'expertise' },
-    { name: 'Survival',        ability: 'wis', bonus: 1, proficiency: 'none' },
-  ],
-  passivePerception: 13,
-
-  // Rogue (Thief) has no spells. A caster would look something like:
-  // { ability: 'Intelligence', saveDC: 13, attackBonus: 5,
-  //   slots: [{ level: 1, total: 3, used: 0 }], spells: [{ name, level, prepared }] }
+  // Rogue (Thief) has no spells. A caster would look like:
+  // { ability: 'int', slots: [{ level: 1, total: 3, used: 0 }],
+  //   spells: [{ name: 'Magic Missile', level: 1, prepared: true }] }
   spellcasting: null,
 
   equipment: {
-    armor: 'Studded leather',
-    weapons: ['Shortsword', 'Shortbow'],
-    items: ['20 arrows', "Thieves' tools", "Burglar's pack", 'Crowbar', 'Dark common clothes with hood'],
+    // kind: 'armor' | 'weapon' | 'gear' | 'accessory'. Only armor, weapons and accessories can be equipped.
+    // modifiers apply ONLY while the item is equipped.
+    // stat: toHit, damage, ac, speed, str, dex, con, int, wis, cha
+    items: [
+      { id: 'studded', name: 'Studded leather', kind: 'armor', qty: 1, equipped: true, armor: { base: 12, maxDex: null }, modifiers: [] },
+      { id: 'shortsword', name: 'Shortsword', kind: 'weapon', qty: 1, equipped: true, modifiers: [] },
+      { id: 'shortbow', name: 'Shortbow', kind: 'weapon', qty: 1, equipped: true, modifiers: [] },
+      // DEMO ITEM (not in Kira's original gear): gives the Modifiers tab something to show. Delete if not wanted.
+      { id: 'ring', name: 'Ring of Protection', kind: 'accessory', qty: 1, equipped: false, modifiers: [{ stat: 'ac', value: 1 }] },
+      { id: 'arrows', name: 'Arrows', kind: 'gear', qty: 20, consumable: true },
+      { id: 'thieves-tools', name: "Thieves' tools", kind: 'gear', qty: 1 },
+      { id: 'burglars-pack', name: "Burglar's pack", kind: 'gear', qty: 1 },
+      { id: 'crowbar', name: 'Crowbar', kind: 'gear', qty: 1 },
+      { id: 'clothes', name: 'Dark common clothes with hood', kind: 'gear', qty: 1 },
+    ],
     coins: { cp: 0, sp: 8, gp: 15, pp: 0 },
   },
 
   features: [
     { name: 'Expertise',         source: 'Rogue 1', summary: 'Double proficiency bonus on Stealth and Sleight of Hand.' },
-    { name: 'Sneak Attack',      source: 'Rogue 1', summary: 'Extra 2d6 damage once per turn with advantage or an ally next to the target.' },
+    { name: 'Sneak Attack',      source: 'Rogue 1', summary: 'Extra damage once per turn with advantage or an ally next to the target.' },
     { name: "Thieves' Cant",     source: 'Rogue 1', summary: 'Secret slang and signs shared by rogues.' },
     { name: 'Cunning Action',    source: 'Rogue 2', summary: 'Dash, Disengage, or Hide as a bonus action.' },
     { name: 'Fast Hands',        source: 'Thief 3', summary: 'Use an object or thieves’ tools as a bonus action.' },
     { name: 'Second-Story Work', source: 'Thief 3', summary: 'Climb at full speed; longer running jumps.' },
   ],
+
+  // Feats taken at level 4 or from race. None are recorded for Kira.
+  feats: [],
 
   traits: {
     personality: 'Always has an exit plan.',

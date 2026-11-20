@@ -5,6 +5,7 @@
 WASD.registerCard({
   id: 'abilities',
   title: 'Abilities & Saves',
+  icon: 'bolt',
 
   summary(ch) {
     const top = ch.abilities.reduce((best, a) => (a.score > best.score ? a : best));
@@ -15,7 +16,6 @@ WASD.registerCard({
   render(ch) {
     const { esc, signed } = WASD;
 
-    // TODO(Person B): decide the final layout (table vs. tiles); add tap-to-roll later.
     const rows = ch.abilities.map((a) => `
       <tr>
         <th scope="row">${esc(a.name)}</th>

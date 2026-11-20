@@ -19,19 +19,40 @@ body {
   background: var(--color-accent-soft);
   border-bottom: 0.0625rem solid var(--color-border);
 }
+.brand { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.brand__mark {
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.5rem;
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: 700;
+}
 .app-name {
   margin: 0;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-accent);
 }
-.char-summary {
+.char-name { margin: 0; font-size: 1.25rem; font-weight: 700; line-height: 1.2; }
+
+.header-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-2);
   margin: 0;
-  font-size: 1.125rem;
-  font-weight: 700;
 }
+.header-stat {
+  padding: var(--space-2);
+  background: var(--color-bg);
+  border-radius: 0.5rem;
+}
+.header-stat dt { font-size: 0.8125rem; color: var(--color-muted); }
+.header-stat dd { margin: 0; font-size: 1.125rem; font-weight: 700; }
 
 /* ---- Content zone ---- */
 .zone-content {
@@ -51,6 +72,14 @@ body {
   margin-bottom: var(--space-3);
 }
 .view-heading h1 { margin: 0; }
+.eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+}
 .view-heading__actions { display: flex; flex-wrap: wrap; gap: var(--space-2); }
 
 /* Card grid. Reading order = DOM order = row by row, left to right.
@@ -96,7 +125,19 @@ body {
   justify-content: center;
   gap: var(--space-2);
 }
-.zone-action__buttons .btn { flex: 1 1 0; max-width: 12rem; }
+/* Bottom bar buttons: icon above a short label */
+.btn--action {
+  flex-direction: column;
+  gap: 0;
+  flex: 1 1 0;
+  max-width: 12rem;
+  min-height: 3.5rem;
+  padding: var(--space-1) var(--space-2);
+  border-color: transparent;
+  background: transparent;
+  font-size: 0.875rem;
+}
+.btn--action:hover { background: var(--color-bg); }
 
 .status {
   margin: 0;

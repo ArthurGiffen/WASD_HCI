@@ -7,6 +7,7 @@
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/cards.css">
+  <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/quick-page.css">
 </head>
 <body>
@@ -14,9 +15,15 @@
 
   <!-- ============ HEADER ZONE (owner: Person A) ============ -->
   <header class="zone-header">
-    <p class="app-name">WASD Character Sheet</p>
-    <!-- Filled by js/app.js, e.g. "Kira · Rogue 4 · HP 27/31 · AC 15" -->
-    <p class="char-summary" id="char-summary">Loading character…</p>
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">W</span>
+      <div>
+        <p class="app-name">WASD Character Sheet</p>
+        <p class="char-name" id="char-name">Loading…</p>
+      </div>
+    </div>
+    <!-- Filled by js/app.js: race and class with level, HP, AC -->
+    <dl class="header-stats" id="header-stats"></dl>
   </header>
 
   <!-- ============ CONTENT ZONE ============ -->
@@ -25,10 +32,14 @@
     <!-- HUB VIEW (route: #/). Cards are injected by js/hub.js. -->
     <div id="view-hub" class="view">
       <div class="view-heading">
-        <h1 id="hub-title" tabindex="-1">Character overview</h1>
+        <div>
+          <p class="eyebrow">Character overview</p>
+          <h1 id="hub-title" tabindex="-1">Ready for the next move</h1>
+        </div>
         <div class="view-heading__actions">
           <button type="button" id="edit-layout" class="btn" aria-pressed="false">Edit layout</button>
           <button type="button" id="reset-layout" class="btn" hidden>Reset order</button>
+          <button type="button" id="reset-demo" class="btn">Reset demo</button>
         </div>
       </div>
       <!-- role="list" keeps list semantics in Safari/VoiceOver when list-style is removed -->
@@ -49,9 +60,9 @@
     <!-- Visible status message + screen-reader announcements (see WASD.announce) -->
     <p id="status" class="status" role="status"></p>
     <div class="zone-action__buttons">
-      <button type="button" id="open-quick-page" class="btn" aria-haspopup="dialog">Quick Page</button>
-      <button type="button" id="roll-btn" class="btn">Roll</button>
-      <button type="button" id="level-up-btn" class="btn">Level Up</button>
+      <button type="button" id="open-quick-page" class="btn btn--action" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 6h16"/><path d="M4 12h16"/><path d="M4 18h16"/></svg><span>Quick Page</span></button>
+      <button type="button" id="roll-btn" class="btn btn--action" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1"/><circle cx="15.5" cy="15.5" r="1"/><circle cx="12" cy="12" r="1"/></svg><span>Roll</span></button>
+      <button type="button" id="level-up-btn" class="btn btn--action"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 19V5"/><path d="m5 12 7-7 7 7"/></svg><span>Level Up</span></button>
     </div>
   </nav>
 
@@ -66,9 +77,57 @@
     </div>
   </dialog>
 
-  <!-- Load order matters: registry → data → cards → screens → actions → app -->
+  <!-- ============ DICE ROLLER (opened by the Roll button) ============ -->
+  <dialog id="roll-dialog" class="modal" aria-labelledby="roll-title">
+    <div class="modal__inner">
+      <h2 id="roll-title">Dice roller</h2>
+      <div class="roll-fields">
+        <div class="field">
+          <label for="roll-count">Number of dice</label>
+          <input id="roll-count" class="input" type="number" inputmode="numeric" min="1" max="20" step="1" value="1">
+        </div>
+        <div class="field">
+          <label for="roll-mod">Modifier</label>
+          <input id="roll-mod" class="input" type="number" inputmode="numeric" min="-99" max="99" step="1" value="0">
+        </div>
+      </div>
+      <p id="roll-error" class="field-error" hidden></p>
+      <div role="group" aria-labelledby="roll-dice-label">
+        <p id="roll-dice-label" class="hint">Press a die to roll it.</p>
+        <div id="roll-dice" class="dice-grid"></div>
+      </div>
+      <div class="roll-output">
+        <p class="roll-output__total" id="roll-total">&ndash;</p>
+        <p class="roll-output__detail" id="roll-detail">No roll yet.</p>
+      </div>
+      <!-- Screen-reader announcement of each result (the page behind this dialog is inert). -->
+      <p id="roll-result" class="visually-hidden" role="status" aria-live="polite"></p>
+      <h3 class="roll-history-title">Recent rolls</h3>
+      <ul id="roll-history" class="plain-list"></ul>
+      <button type="button" id="close-roll" class="btn">Close</button>
+    </div>
+  </dialog>
+
+  <!-- ============ CONFIRM DIALOG (used by Reset demo) ============ -->
+  <dialog id="confirm-dialog" class="modal" aria-labelledby="confirm-title" aria-describedby="confirm-message">
+    <div class="modal__inner">
+      <h2 id="confirm-title">Are you sure?</h2>
+      <p id="confirm-message"></p>
+      <div class="modal__buttons">
+        <button type="button" id="confirm-no" class="btn">Cancel</button>
+        <button type="button" id="confirm-yes" class="btn btn--primary">Yes</button>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- Load order matters: registry → data → rules/store → cards → screens → actions → app -->
   <script src="js/registry.js"></script>
+  <script src="js/dialog.js"></script>
+  <script src="js/tabs.js"></script>
+  <script src="js/dice.js"></script>
   <script src="js/data/sample-character.js"></script>
+  <script src="js/rules.js"></script>
+  <script src="js/character-store.js"></script>
 
   <script src="js/cards/combat.js"></script>
   <script src="js/cards/abilities.js"></script>
@@ -83,6 +142,7 @@
   <script src="js/quick-page.js"></script>
 
   <script src="js/actions/roll.js"></script>
+  <script src="js/actions/reset.js"></script>
   <script src="js/actions/level-up.js"></script>
 
   <script src="js/app.js"></script>

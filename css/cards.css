@@ -15,13 +15,12 @@
 
 .card__heading { margin: 0; font-size: 1.125rem; }
 
-/* The whole card header is one big disclosure button */
+/* The whole card header is one big disclosure button: icon tile, text, chevron */
 .card__toggle {
   position: relative;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--space-1);
+  align-items: center;
+  gap: var(--space-3);
   width: 100%;
   min-height: var(--target-min);
   padding: var(--space-3);
@@ -35,6 +34,18 @@
   cursor: pointer;
 }
 .card__toggle:hover { background: var(--color-bg); }
+
+.card__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 0.75rem;
+  background: var(--color-tile);
+  color: var(--color-accent);
+}
+.card__text { display: flex; flex-direction: column; gap: var(--space-1); min-width: 0; }
 
 /* Chevron: points down when collapsed, up when expanded */
 .card__toggle::after {
@@ -86,6 +97,7 @@
   border-radius: var(--radius);
 }
 .stat dt { font-size: 0.875rem; color: var(--color-muted); }
+.stat dt { display: flex; align-items: center; gap: var(--space-1); }
 .stat dd { margin: 0; font-size: 1.25rem; font-weight: 700; }
 .stat--primary { grid-column: 1 / -1; border-width: 0.125rem; }
 .stat--primary dd { font-size: 1.75rem; }
@@ -108,3 +120,9 @@
   text-align: left;
 }
 .data-table thead th { font-size: 0.875rem; color: var(--color-muted); }
+
+/* Very narrow screens (320px wide / 400% zoom): tighten the table so it never scrolls sideways */
+@media (max-width: 24rem) {
+  .data-table th, .data-table td { padding: var(--space-1); font-size: 0.9375rem; }
+  .data-table thead th { font-size: 0.8125rem; }
+}

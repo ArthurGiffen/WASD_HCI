@@ -1,35 +1,59 @@
 /*
- * base.css: design tokens, reset, typography, focus, buttons, helpers.
+ * base.css: design tokens, font, reset, typography, focus, buttons, helpers.
  * OWNER: Person A
  *
  * RULE: size text and spacing in rem so everything scales with browser zoom
  * and the user's default font-size setting. Avoid px for font sizes.
+ *
+ * Colors come from the team style guide. Contrast is measured against the
+ * page background #faf7f2 (ratios in PLAN.md). Themes later override ONLY
+ * these custom properties.
  */
 
-:root {
-  /* Colors (placeholder palette; all text pairs meet WCAG AA contrast) */
-  --color-bg: #faf6f2;
-  --color-surface: #ffffff;
-  --color-text: #1f1a17;
-  --color-muted: #5c514a;
-  --color-border: #8a776b;
-  --color-accent: #8f1d1d;
-  --color-accent-soft: #f3dcd6;
-  --color-on-accent: #ffffff;
-  --color-focus: #0b57d0;
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("../fonts/atkinson-hyperlegible-latin-400-normal.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Atkinson Hyperlegible";
+  src: url("../fonts/atkinson-hyperlegible-latin-700-normal.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 
-  /* Spacing */
+:root {
+  /* Colors (style guide) */
+  --color-bg: #faf7f2;
+  --color-surface: #ffffff;
+  --color-text: #1f1b16;
+  --color-muted: #5c5248;
+  --color-border: #8a7f73;
+  --color-accent: #9b1c1c;        /* primary */
+  --color-accent-soft: #f4d9d2;   /* header and action bar */
+  --color-tile: #f1d3cc;          /* icon tiles */
+  --color-on-accent: #ffffff;
+  --color-focus: #1d4ed8;
+  --color-success: #166534;
+  --color-error: #b91c1c;
+  --color-warning: #92400e;
+
+  /* Spacing: 8px grid */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 1rem;
   --space-4: 1.5rem;
 
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --target-min: 2.75rem; /* 44px minimum touch target at default zoom */
-  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font: "Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-heading: "Atkinson Hyperlegible", Georgia, "Times New Roman", serif;
 }
 
-/* TODO(Person A): add a dark theme under @media (prefers-color-scheme: dark). */
+/* TODO: themes (dark, high contrast...) override the custom properties above. */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -47,13 +71,16 @@ body {
   background: var(--color-bg);
 }
 
-h1, h2, h3 { line-height: 1.25; margin: 0 0 var(--space-2); }
-h1 { font-size: 1.5rem; }
+h1, h2, h3 { font-family: var(--font-heading); line-height: 1.25; margin: 0 0 var(--space-2); }
+h1 { font-size: 1.75rem; }
 h2 { font-size: 1.25rem; }
-h3 { font-size: 1.0625rem; }
+h3 { font-size: 1.0625rem; margin-top: var(--space-3); }
 p { margin: 0 0 var(--space-2); }
 
 a { color: var(--color-accent); }
+
+.muted { color: var(--color-muted); }
+.hint { color: var(--color-muted); font-size: 0.875rem; }
 
 /* ---- Focus: always visible for keyboard users ---- */
 :focus-visible {
@@ -63,8 +90,14 @@ a { color: var(--color-accent); }
 /* Elements we focus from script (headings, <main>) don't need a ring */
 [tabindex="-1"]:focus { outline: none; }
 
+.icon { flex: none; width: 1.25rem; height: 1.25rem; }
+
 /* ---- Buttons ---- */
 .btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
   font: inherit;
   min-height: var(--target-min);
   padding: var(--space-2) var(--space-3);
@@ -72,15 +105,23 @@ a { color: var(--color-accent); }
   border-radius: var(--radius);
   background: var(--color-surface);
   color: var(--color-accent);
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
 }
 .btn:hover { background: var(--color-accent-soft); }
+.btn--primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.btn--primary:hover { background: #7f1616; }
+/* Toggle buttons (Edit layout, Equipped, Proficient only): pressed = filled + check or text */
 .btn[aria-pressed="true"] {
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
+.btn[aria-pressed="true"]:hover { background: #7f1616; }
 .btn--small { padding: var(--space-1) var(--space-2); font-size: 0.9375rem; }
+.btn--icon { width: var(--target-min); padding: 0; }
 /* aria-disabled (not `disabled`) so the button keeps focus after a move */
 .btn[aria-disabled="true"] {
   border-style: dashed;
@@ -88,6 +129,28 @@ a { color: var(--color-accent); }
   border-color: var(--color-muted);
   background: transparent;
   cursor: not-allowed;
+}
+
+/* ---- Form fields ---- */
+.input {
+  font: inherit;
+  min-height: var(--target-min);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 0.125rem solid var(--color-border);
+  border-radius: var(--radius);
+}
+.input[aria-invalid="true"] { border-color: var(--color-error); }
+label { font-weight: 700; }
+.field-error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: var(--space-2) 0;
+  color: var(--color-error);
+  font-weight: 700;
 }
 
 /* ---- Helpers ---- */
@@ -119,4 +182,20 @@ a { color: var(--color-accent); }
   border-radius: 0.25rem;
   font-size: 0.8125rem;
   color: var(--color-muted);
+}
+/* "On" tags (proficient, equipped) carry their meaning in the TEXT, the fill only adds emphasis */
+.tag--on {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+}
+
+/* Respect the "reduce motion" system setting. We use almost no motion; this keeps it that way. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

@@ -6,6 +6,7 @@
 WASD.registerCard({
   id: 'identity',
   title: 'Identity',
+  icon: 'user',
 
   summary(ch) {
     const id = ch.identity;
@@ -16,7 +17,6 @@ WASD.registerCard({
     const { esc } = WASD;
     const id = ch.identity;
 
-    // TODO(Person C): make these editable during character creation.
     return `
       <dl class="pair-list">
         <div><dt>Name</dt><dd>${esc(id.name)}</dd></div>
