@@ -7,7 +7,8 @@ A modular, responsive, accessible redesign of the D&D 5e character sheet. The sh
 reorder cards. The visual order is also the screen-reader reading order.
 
 > Status: **demo build**. Combat card (HP, attack rolls), dice roller, all 7 cards, style guide applied, Reset demo.
-> Still to build: Level Up flow, guided build, themes, full accessibility pass. See `PLAN.md`.
+> Also: Level Up wizard (2014 rules) and guided first-time build.
+> Still to build: themes, full accessibility pass, demo script. See `PLAN.md`.
 
 ## How to run
 
@@ -35,6 +36,8 @@ js/
   dialog.js                  WASD.modal() for <dialog>s and WASD.confirm() (yes/no)
   tabs.js                    WASD.tabs.render(): one accessible tab component (Equipment, Features)
   dice.js                    Dice rolling (no DOM)
+  wizard.js                  WASD.wizard.open(): step-by-step dialog used by Level Up and New character
+  data/classes.js            2014 class/race data for Level Up and the guided build (paraphrased, review it)
   data/sample-character.js   Kira, Human Rogue 4: RAW inputs only (scores, proficiencies, level, gear)
   rules.js                   5e math: WASD.rules.derive(raw) -> the sheet the cards read (mods, saves, AC…)
   character-store.js         Load/save (localStorage), WASD.updateCharacter(), WASD.resetCharacter()
@@ -46,7 +49,8 @@ js/
   quick-page.js              Quick Page overlay: open/close, keys 1–7, focus in/out, Escape
   actions/roll.js            Roll button: dice roller dialog
   actions/reset.js           Reset demo button (confirm, then restore Kira at level 4)
-  actions/level-up.js        Level Up button (stub)
+  actions/level-up.js        Level Up wizard: HP, proficiency changes, new features, review
+  actions/new-character.js   New character wizard: name, class, race, ability scores, review
   app.js                     Bootstrap: loads the character, fills the header, starts the router
 ```
 

@@ -23,7 +23,10 @@ WASD.registerCard({
     const { esc, signed } = WASD;
     const h = ctx.sub;
 
-    const spells = (s.spells || []).map((sp) => `<li>${esc(sp.name)} <span class="tag">level ${sp.level}</span></li>`).join('');
+    const spells = (s.spells || []).map((sp) =>
+      `<li>${esc(sp.name)} <span class="tag">${sp.level === 0 ? 'cantrip' : `level ${sp.level}`}</span></li>`).join('');
+    const slots = (s.slots || []).map((sl) =>
+      `<li>Level ${sl.level}: ${sl.total - sl.used} of ${sl.total} slots left</li>`).join('');
 
     return `
       <dl class="stat-list">
@@ -31,6 +34,7 @@ WASD.registerCard({
         <div class="stat"><dt>Spell attack</dt><dd>${signed(s.attackBonus)}</dd></div>
         <div class="stat"><dt>Ability</dt><dd>${esc(s.ability)}</dd></div>
       </dl>
+      ${slots ? `<${h}>Spell slots</${h}><ul class="plain-list">${slots}</ul>` : ''}
       <${h}>Spells</${h}>
       <ul class="plain-list">${spells}</ul>`;
   },

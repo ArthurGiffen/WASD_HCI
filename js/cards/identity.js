@@ -21,7 +21,7 @@ WASD.registerCard({
       <dl class="pair-list">
         <div><dt>Name</dt><dd>${esc(id.name)}</dd></div>
         <div><dt>Race</dt><dd>${esc(id.race)}</dd></div>
-        <div><dt>Class</dt><dd>${esc(id.className)} (${esc(id.subclass)})</dd></div>
+        <div><dt>Class</dt><dd>${esc(id.className)}${id.subclass ? ` (${esc(id.subclass)})` : ''}</dd></div>
         <div><dt>Level</dt><dd>${id.level}</dd></div>
         <div><dt>Background</dt><dd>${esc(id.background)}</dd></div>
         <div><dt>Alignment</dt><dd>${esc(id.alignment)}</dd></div>

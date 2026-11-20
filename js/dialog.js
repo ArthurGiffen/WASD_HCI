@@ -16,12 +16,19 @@
 (function (WASD) {
   'use strict';
 
-  WASD.modal = function (dialog) {
+  /**
+   * options.backdropClose (default true): false for multi-step wizards, so a
+   *   stray click outside doesn't throw away the player's choices.
+   * options.onClose(): called after every close (Escape, Cancel, finish).
+   */
+  WASD.modal = function (dialog, options) {
+    const opts = { backdropClose: true, ...options };
     let opener = null;
 
     function close() {
       if (dialog.open) dialog.close();
       if (opener && document.contains(opener)) opener.focus();
+      if (opts.onClose) opts.onClose();
     }
 
     dialog.addEventListener('cancel', (event) => {
@@ -29,7 +36,7 @@
       close();
     });
     dialog.addEventListener('click', (event) => {
-      if (event.target === dialog) close();
+      if (opts.backdropClose && event.target === dialog) close();
     });
 
     return {

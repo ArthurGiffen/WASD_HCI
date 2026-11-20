@@ -174,3 +174,53 @@
   .hp-form label { grid-column: 1 / -1; }
   .hp-form .input { grid-column: 1; }
 }
+
+/* ===================== Wizard (Level Up, New character) ===================== */
+.modal--wide { width: min(40rem, calc(100% - 2rem)); }
+#wizard-heading { margin-bottom: var(--space-3); }
+
+.choices { margin: 0 0 var(--space-3); padding: 0; border: 0; }
+.choices legend { font-weight: 700; margin-bottom: var(--space-2); padding: 0; }
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 0.0625rem solid var(--color-border);
+  border-radius: var(--radius);
+}
+.choice input { flex: none; width: 1.25rem; height: 1.25rem; margin: 0.15rem 0 0; accent-color: var(--color-accent); }
+.choice label { font-weight: 400; flex: 1; cursor: pointer; }
+/* Selected choice: thicker border AND the checked radio, not color alone */
+.choice:has(input:checked) { border-width: 0.1875rem; border-color: var(--color-accent); background: var(--color-bg); }
+.choice__desc { display: block; color: var(--color-muted); font-size: 0.9375rem; }
+
+.callout {
+  /* block, not flex: flex would split a sentence with <strong> in it into separate boxes */
+  margin: var(--space-3) 0;
+  padding: var(--space-2) var(--space-3);
+  border-left: 0.25rem solid var(--color-accent);
+  background: var(--color-bg);
+}
+.callout .icon { vertical-align: -0.25em; margin-right: var(--space-1); color: var(--color-warning); }
+.field--narrow { max-width: 16rem; margin-top: var(--space-3); }
+
+.score-list { display: grid; gap: var(--space-2); margin-top: var(--space-2); }
+.score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-1);
+  padding-bottom: var(--space-2);
+  border-bottom: 0.0625rem solid var(--color-border);
+}
+.score-row__result { color: var(--color-muted); }
+@media (min-width: 36rem) {
+  .score-row { grid-template-columns: 9rem 9rem minmax(0, 1fr); align-items: center; gap: var(--space-3); }
+}
+
+.review-list div { padding: var(--space-1) 0; border-bottom: 0.0625rem solid var(--color-border); }
+
+/* A wide table can scroll inside its own box instead of the whole page */
+.table-scroll { max-width: 100%; overflow-x: auto; }
+.data-table caption { text-align: left; font-weight: 700; margin-bottom: var(--space-2); }

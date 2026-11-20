@@ -9,7 +9,7 @@ A responsive web app (plain HTML/CSS/JS, no framework, no build step) that shows
 Primary users are sighted players. The sheet must also be fully usable by blind and low-vision players.
 
 - **Demo character:** "Kira", Human Rogue (Thief), level 4. Use the data in `js/data/sample-character.js`. If a stat is missing, ask. Do not invent it.
-- **Rules edition:** 2014 or 2024? **Still undecided. Decide before Level Up.**
+- **Rules edition:** 2014 (decided 2026-11-20).
 - **Do not add frameworks or dependencies** without asking.
 
 ### Accessibility rules (apply to every change)
@@ -37,7 +37,8 @@ Primary users are sighted players. The sheet must also be fully usable by blind 
 | ✅ | Task 1: Combat card, HP controls, attack rolls (hit and damage separate), dice roller |
 | ✅ | Testing feedback #1 to #7 (see table below) |
 | ✅ | Remaining cards, style guide applied, Reset demo |
-| ⬜ | Task 2 Level Up (Opus), Task 3 guided build, themes, accessibility pass (Opus), demo script |
+| ✅ | Task 2 Level Up (2014 rules) and Task 3 guided build, on a shared wizard dialog |
+| ⬜ | Review `js/data/classes.js` summaries; themes; accessibility pass (Opus); demo script |
 | | Nothing is committed yet. |
 
 ## Model plan
@@ -161,6 +162,5 @@ These appear in the slides but not in the task prompts. Cut them or build them o
 
 ## Open questions
 
-- 2014 or 2024 rules?
 - Which of the "beyond the task list" features, if any, are in the demo?
 - Is there a `CLAUDE.md` for this repo? The pasted project rules (accessibility, working style) could live there. Otherwise this file carries them.
