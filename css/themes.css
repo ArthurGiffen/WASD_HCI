@@ -1,0 +1,88 @@
+/*
+ * themes.css: color themes and the Large text setting.
+ *
+ * Each theme only overrides the color tokens from base.css. The theme is set
+ * on <html data-theme="..."> by the small script in index.html's <head>
+ * (saved choice, or the device's dark / more-contrast setting on first visit)
+ * and changed from the Settings dialog (js/settings.js).
+ *
+ * Every theme was checked for WCAG AA: 4.5:1 for text, 3:1 for borders,
+ * icons and the focus ring, on every background the UI uses.
+ */
+
+/* Parchment (default): the team style guide. Values live in base.css :root. */
+
+/* Dark: warm dark gray, light text, soft coral primary. For low-light tables. */
+:root[data-theme="dark"] {
+  color-scheme: dark; /* dark scrollbars and form controls */
+  --color-bg: #1b1815;
+  --color-surface: #262220;
+  --color-text: #f4efe9;
+  --color-muted: #cbc2b8;
+  --color-border: #8f857a;
+  --color-accent: #ff9b8f;
+  --color-accent-hover: #ffb8ae;
+  --color-accent-soft: #3b2623;
+  --color-tile: #4a2c28;
+  --color-on-accent: #1b1815;
+  --color-focus: #8ab4ff;
+  --color-success: #7dd99a;
+  --color-error: #ffb4a8;
+  --color-warning: #f6c177;
+}
+
+/* High contrast: black on white, thick borders, no tinted fills. For low vision. */
+:root[data-theme="contrast"] {
+  --color-bg: #ffffff;
+  --color-surface: #ffffff;
+  --color-text: #000000;
+  --color-muted: #2e2e2e;
+  --color-border: #000000;
+  --color-accent: #000000;
+  --color-accent-hover: #333333;
+  --color-accent-soft: #eeeeee;
+  --color-tile: #e2e2e2;
+  --color-on-accent: #ffffff;
+  --color-focus: #0040ff;
+  --color-success: #00591f;
+  --color-error: #a30000;
+  --color-warning: #6b2f00;
+}
+:root[data-theme="contrast"] :is(.card, .stat, .attack, .input, .choice, .coin, .tag, .modal, .quick-page, .roll-output, .roll-result) {
+  border-width: 0.1875rem;
+}
+:root[data-theme="contrast"] :focus-visible { outline-width: 0.25rem; }
+
+/* Forest: green primary for players who dislike red. Errors stay red, so they stay distinct. */
+:root[data-theme="forest"] {
+  --color-bg: #f5f8f3;
+  --color-surface: #ffffff;
+  --color-text: #16201a;
+  --color-muted: #475a4d;
+  --color-border: #78887c;
+  --color-accent: #1d5c38;
+  --color-accent-hover: #15462a;
+  --color-accent-soft: #d6e7da;
+  --color-tile: #cce2d3;
+}
+
+/* Arcane: deep indigo on a cool background. Orange focus ring so it never blends with the primary. */
+:root[data-theme="arcane"] {
+  --color-bg: #f5f6fb;
+  --color-surface: #ffffff;
+  --color-text: #181a2a;
+  --color-muted: #4b4f68;
+  --color-border: #7a7f99;
+  --color-accent: #3d2f91;
+  --color-accent-hover: #2e2370;
+  --color-accent-soft: #dfdff5;
+  --color-tile: #d4d4f1;
+  --color-focus: #b54708;
+}
+
+/* Large text: everything is sized in rem, so one change scales the whole app. Works with any theme. */
+:root[data-text="large"] { font-size: 125%; }
+
+/* Theme preview swatches in the Settings dialog (decorative) */
+.swatch { display: inline-flex; gap: 0.125rem; margin-right: var(--space-2); vertical-align: middle; }
+.swatch span { width: 1rem; height: 1rem; border-radius: 0.25rem; border: 0.0625rem solid #000; }

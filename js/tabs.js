@@ -12,6 +12,9 @@
   'use strict';
 
   const active = {}; // group id -> active tab id
+  // A panel with no buttons/inputs/links gets tabindex="0" so keyboard users can reach
+  // (and scroll) its text. A panel WITH controls doesn't need the extra Tab stop.
+  const HAS_FOCUSABLE = /<(button|input|select|textarea|a\s[^>]*href)/i;
 
   function render(group, label, tabs) {
     const current = tabs.some((t) => t.id === active[group]) ? active[group] : tabs[0].id;
@@ -26,7 +29,7 @@
 
     const panels = tabs.map((t) => `
       <div role="tabpanel" class="tabpanel" id="${group}-panel-${t.id}"
-           aria-labelledby="${group}-tab-${t.id}" tabindex="0"${t.id === current ? '' : ' hidden'}>${t.html}</div>`).join('');
+           aria-labelledby="${group}-tab-${t.id}"${HAS_FOCUSABLE.test(t.html) ? '' : ' tabindex="0"'}${t.id === current ? '' : ' hidden'}>${t.html}</div>`).join('');
 
     return `<div class="tabs" data-tabs="${group}">
       <div role="tablist" class="tablist" aria-label="${esc(label)}" data-tablist="${group}">${buttons}</div>${panels}</div>`;

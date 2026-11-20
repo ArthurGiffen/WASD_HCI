@@ -6,6 +6,10 @@
  * Breakpoints are in rem, so zooming in on a laptop drops back to one column.
  */
 
+/* The action bar is sticky at the bottom. When keyboard focus moves to a control,
+   the browser scrolls it into view ABOVE the bar instead of behind it (WCAG 2.4.11). */
+html { scroll-padding-bottom: 9rem; }
+
 body {
   min-height: 100vh;
   min-height: 100dvh;
@@ -20,6 +24,7 @@ body {
   border-bottom: 0.0625rem solid var(--color-border);
 }
 .brand { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+.brand__text { flex: 1; min-width: 0; }
 .brand__mark {
   display: grid;
   place-items: center;
@@ -72,6 +77,8 @@ body {
   margin-bottom: var(--space-3);
 }
 .view-heading h1 { margin: 0; }
+#hub-title .eyebrow { display: block; }
+.hub-title__main { display: block; }
 .eyebrow {
   margin: 0;
   font-size: 0.75rem;
@@ -150,4 +157,5 @@ body {
    sticky bar cover the content; let it scroll with the page instead. */
 @media (max-height: 30rem) {
   .zone-action { position: static; }
+  html { scroll-padding-bottom: 0; }
 }

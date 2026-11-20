@@ -8,7 +8,7 @@ reorder cards. The visual order is also the screen-reader reading order.
 
 > Status: **demo build**. Combat card (HP, attack rolls), dice roller, all 7 cards, style guide applied, Reset demo.
 > Also: Level Up wizard (2014 rules) and guided first-time build.
-> Still to build: themes, full accessibility pass, demo script. See `PLAN.md`.
+> Also: 5 themes + Large text, accessibility pass (see `ACCESSIBILITY.md`), demo script (`DEMO-SCRIPT.md`).
 
 ## How to run
 
@@ -24,6 +24,9 @@ No install, no build step.
 index.html                   Page shell: header / content / action zones, Quick Page dialog, script tags
 README.md                    This file
 AI-DISCLOSURE.md             Record of AI-generated work (course requirement)
+PLAN.md                      Build plan and status
+DEMO-SCRIPT.md               5-minute live demo, click by click
+ACCESSIBILITY.md             How accessibility was tested, what was fixed, known limits
 fonts/                       Atkinson Hyperlegible (bundled, so the page works offline)
 css/
   base.css                   Tokens (colors from the style guide, spacing in rem), font, focus ring, buttons, helpers
@@ -31,6 +34,7 @@ css/
   cards.css                  Card shell + shared content patterns (stat tiles, tables, lists)
   components.css             Combat HP/attacks, tabs, equipment rows, modal dialogs, dice roller
   quick-page.css             Quick Page overlay
+  themes.css                 Dark, High contrast, Forest, Arcane themes + Large text
 js/
   registry.js                window.WASD namespace, registerCard(), esc(), announce(), icon(), data-action click handling
   dialog.js                  WASD.modal() for <dialog>s and WASD.confirm() (yes/no)
@@ -47,6 +51,7 @@ js/
   hub.js                     Hub screen: renders cards, collapse/expand, Edit layout (Up/Down)
   router.js                  #/ = Hub, #/card/<id> = Card view; moves focus on navigation
   quick-page.js              Quick Page overlay: open/close, keys 1–7, focus in/out, Escape
+  settings.js                Settings dialog (gear in the header): theme and Large text
   actions/roll.js            Roll button: dice roller dialog
   actions/reset.js           Reset demo button (confirm, then restore Kira at level 4)
   actions/level-up.js        Level Up wizard: HP, proficiency changes, new features, review

@@ -9,6 +9,19 @@
   <link rel="stylesheet" href="css/cards.css">
   <link rel="stylesheet" href="css/components.css">
   <link rel="stylesheet" href="css/quick-page.css">
+  <link rel="stylesheet" href="css/themes.css">
+  <script>
+    /* Apply the saved theme before the page is drawn (no flash). First visit:
+       follow the device's "more contrast" or "dark" setting. See js/settings.js. */
+    (function () {
+      var s = {};
+      try { s = JSON.parse(localStorage.getItem('wasd.settings.v1')) || {}; } catch (e) {}
+      var mq = function (q) { return window.matchMedia && window.matchMedia(q).matches; };
+      var theme = s.theme || (mq('(prefers-contrast: more)') ? 'contrast' : mq('(prefers-color-scheme: dark)') ? 'dark' : 'parchment');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (s.largeText) document.documentElement.setAttribute('data-text', 'large');
+    })();
+  </script>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -17,10 +30,11 @@
   <header class="zone-header">
     <div class="brand">
       <span class="brand__mark" aria-hidden="true">W</span>
-      <div>
+      <div class="brand__text">
         <p class="app-name">WASD Character Sheet</p>
         <p class="char-name" id="char-name">Loading…</p>
       </div>
+      <button type="button" id="settings-btn" class="btn btn--icon" aria-label="Settings" title="Settings" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></button>
     </div>
     <!-- Filled by js/app.js: race and class with level, HP, AC -->
     <dl class="header-stats" id="header-stats"></dl>
@@ -32,10 +46,10 @@
     <!-- HUB VIEW (route: #/). Cards are injected by js/hub.js. -->
     <div id="view-hub" class="view">
       <div class="view-heading">
-        <div>
-          <p class="eyebrow">Character overview</p>
-          <h1 id="hub-title" tabindex="-1">Ready for the next move</h1>
-        </div>
+        <h1 id="hub-title" tabindex="-1">
+          <span class="eyebrow">Character overview<span class="visually-hidden">:</span></span>
+          <span class="hub-title__main">Ready for the next move</span>
+        </h1>
         <div class="view-heading__actions">
           <button type="button" id="edit-layout" class="btn" aria-pressed="false">Edit layout</button>
           <button type="button" id="reset-layout" class="btn" hidden>Reset order</button>
@@ -44,7 +58,7 @@
         </div>
       </div>
       <!-- role="list" keeps list semantics in Safari/VoiceOver when list-style is removed -->
-      <ol id="card-list" class="card-list" role="list" aria-labelledby="hub-title"></ol>
+      <ol id="card-list" class="card-list" role="list" aria-label="Character cards"></ol>
     </div>
 
     <!-- CARD VIEW (route: #/card/<id>). Filled by js/router.js. -->
@@ -137,6 +151,27 @@
     </form>
   </dialog>
 
+  <!-- ============ SETTINGS (gear button in the header, see js/settings.js) ============ -->
+  <dialog id="settings-dialog" class="modal" aria-labelledby="settings-title">
+    <div class="modal__inner">
+      <h2 id="settings-title">Settings</h2>
+      <fieldset class="choices">
+        <legend>Color theme</legend>
+        <div id="theme-list"></div>
+      </fieldset>
+      <div class="choice">
+        <input type="checkbox" id="large-text">
+        <label for="large-text"><strong>Large text</strong>
+          <span class="choice__desc">Makes all text and controls 25% bigger.</span></label>
+      </div>
+      <p id="settings-live" class="visually-hidden" role="status"></p>
+      <p class="hint">Changes apply right away and are saved in this browser.</p>
+      <div class="modal__buttons">
+        <button type="button" id="close-settings" class="btn btn--primary">Done</button>
+      </div>
+    </div>
+  </dialog>
+
   <!-- Load order matters: registry → data → rules/store → cards → screens → actions → app -->
   <script src="js/registry.js"></script>
   <script src="js/dialog.js"></script>
@@ -160,6 +195,7 @@
   <script src="js/router.js"></script>
   <script src="js/quick-page.js"></script>
 
+  <script src="js/settings.js"></script>
   <script src="js/actions/roll.js"></script>
   <script src="js/actions/reset.js"></script>
   <script src="js/actions/level-up.js"></script>

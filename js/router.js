@@ -45,6 +45,8 @@
       lastCardId = card.id;
     } else {
       WASD.hub.render();
+      // Empty the hidden card page too, for the same reason (no duplicate ids).
+      cardBody.innerHTML = '';
       cardView.hidden = true;
       hubView.hidden = false;
       document.title = `${name} · WASD Character Sheet`;

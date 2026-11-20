@@ -38,7 +38,8 @@ Primary users are sighted players. The sheet must also be fully usable by blind 
 | ✅ | Testing feedback #1 to #7 (see table below) |
 | ✅ | Remaining cards, style guide applied, Reset demo |
 | ✅ | Task 2 Level Up (2014 rules) and Task 3 guided build, on a shared wizard dialog |
-| ⬜ | Review `js/data/classes.js` summaries; themes; accessibility pass (Opus); demo script |
+| ✅ | Themes (5) + Large text, accessibility pass (`ACCESSIBILITY.md`), demo script (`DEMO-SCRIPT.md`) |
+| ⬜ | Team: review `js/data/classes.js` summaries; one real screen-reader run; rehearse `DEMO-SCRIPT.md` |
 | | Nothing is committed yet. |
 
 ## Model plan

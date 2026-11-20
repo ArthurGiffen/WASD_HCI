@@ -67,13 +67,13 @@
   };
 
   function itemRow(item) {
-    const { esc, icon } = WASD;
+    const { esc } = WASD;
     const mods = (item.modifiers || []).map(WASD.rules.formatModifier).join(', ');
     const note = mods ? ` <span class="muted">${esc(mods)}</span>` : '';
     const btn = EQUIPPABLE.includes(item.kind) ? `
       <button type="button" class="btn btn--small btn--toggle" id="equip-${item.id}" data-action="equip-toggle"
               data-item="${item.id}" aria-pressed="${!!item.equipped}" aria-label="Equipped: ${esc(item.name)}">
-        ${item.equipped ? icon('check1') : ''}<span>Equipped</span></button>` : '';
+        Equipped</button>` : '';
     const qty = item.qty > 1 ? ` <span class="tag">×${item.qty}</span>` : '';
     return `<li class="item-row"><span>${esc(item.name)}${qty}${note}</span>${btn}</li>`;
   }
@@ -128,7 +128,7 @@
       const coins = COINS.map((c) => `
         <li class="coin">
           <span class="coin__name">${c.name}</span>
-          <span class="coin__count" aria-label="${e.coins[c.key]} ${c.name.toLowerCase()}">${e.coins[c.key]}</span>
+          <span class="coin__count">${e.coins[c.key]}</span>
           <span class="coin__buttons">
             <button type="button" class="btn btn--icon btn--small" id="coin-minus-${c.key}" data-action="coin-minus" data-coin="${c.key}" aria-label="Remove 1 ${c.name.toLowerCase()}">${WASD.icon('minus')}</button>
             <button type="button" class="btn btn--icon btn--small" id="coin-plus-${c.key}" data-action="coin-plus" data-coin="${c.key}" aria-label="Add 1 ${c.name.toLowerCase()}">${WASD.icon('plus')}</button>

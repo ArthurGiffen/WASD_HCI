@@ -6,8 +6,8 @@
  * and the user's default font-size setting. Avoid px for font sizes.
  *
  * Colors come from the team style guide. Contrast is measured against the
- * page background #faf7f2 (ratios in PLAN.md). Themes later override ONLY
- * these custom properties.
+ * page background #faf7f2 (ratios in PLAN.md). Themes (css/themes.css)
+ * override ONLY these custom properties.
  */
 
 @font-face {
@@ -33,6 +33,7 @@
   --color-muted: #5c5248;
   --color-border: #8a7f73;
   --color-accent: #9b1c1c;        /* primary */
+  --color-accent-hover: #7f1616;  /* primary button hover */
   --color-accent-soft: #f4d9d2;   /* header and action bar */
   --color-tile: #f1d3cc;          /* icon tiles */
   --color-on-accent: #ffffff;
@@ -53,7 +54,7 @@
   --font-heading: "Atkinson Hyperlegible", Georgia, "Times New Roman", serif;
 }
 
-/* TODO: themes (dark, high contrast...) override the custom properties above. */
+/* Themes (css/themes.css) override the custom properties above. */
 
 *, *::before, *::after { box-sizing: border-box; }
 
@@ -113,13 +114,16 @@ a { color: var(--color-accent); }
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
-.btn--primary:hover { background: #7f1616; }
+.btn--primary:hover { background: var(--color-accent-hover); }
 /* Toggle buttons (Edit layout, Equipped, Proficient only): pressed = filled + check or text */
 .btn[aria-pressed="true"] {
   background: var(--color-accent);
   color: var(--color-on-accent);
 }
-.btn[aria-pressed="true"]:hover { background: #7f1616; }
+.btn[aria-pressed="true"]:hover { background: var(--color-accent-hover); }
+/* A check mark on every pressed toggle, so "on" never depends on color alone.
+   The "/ ''" gives it empty alt text: screen readers already hear "pressed". */
+.btn[aria-pressed="true"]::before { content: "✓" / ""; font-weight: 700; }
 .btn--small { padding: var(--space-1) var(--space-2); font-size: 0.9375rem; }
 .btn--icon { width: var(--target-min); padding: 0; }
 /* aria-disabled (not `disabled`) so the button keeps focus after a move */
@@ -190,12 +194,24 @@ label { font-weight: 700; }
   border-color: var(--color-accent);
 }
 
-/* Respect the "reduce motion" system setting. We use almost no motion; this keeps it that way. */
+/* Respect the "reduce motion" system setting. The app has no animations or transitions;
+   this guarantees none sneak in. Use `none`, NOT a tiny duration: a duration on its own
+   turns on transitions for every property of every element (transition-property defaults to all). */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Windows High Contrast / forced colors: the OS replaces our colors, so make every
+   state visible with borders and system colors instead of fills. */
+@media (forced-colors: active) {
+  .btn[aria-pressed="true"] { border-width: 0.25rem; border-style: double; }
+  .tab[aria-selected="true"] { border-bottom-color: Highlight; text-decoration: underline; }
+  .choice:has(input:checked) { border-color: Highlight; }
+  .icon { forced-color-adjust: auto; }
+  .card__icon, .brand__mark { border: 0.0625rem solid CanvasText; }
+  :focus-visible { outline-color: Highlight; }
 }
