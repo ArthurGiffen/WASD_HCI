@@ -15,6 +15,8 @@ How the WASD Character Sheet was checked, what was fixed, and what still needs a
 | Random "monkey" testing | 17,000 random keyboard actions (buttons, tabs, radios, dropdowns, Escape, junk typed into number fields) with checks after every step: no errors, HP in range, no negatives, no duplicate ids, screen and saved data match, focus never lost | 0 failures after fixes |
 | Saved data | Old-format, corrupt and unknown saved data planted before load; page reloaded mid-test | App always loads; changes survive reload |
 
+All of these checks can be rerun with `bash tests/run.sh all` (see `tests/README.md`).
+
 ## What was fixed
 
 1. **Duplicate ids:** returning to the Hub left the previous card page hidden in the page. Its ids (e.g. the Features tabs) then existed twice, which can confuse screen readers and focus. The hidden page is now emptied.

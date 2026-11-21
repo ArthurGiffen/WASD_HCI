@@ -1,0 +1,34 @@
+<!-- Layout suite: loads the app in 320, 360 and 640px wide frames (?large = Large text on) and fails if the page scrolls sideways. -->
+<!doctype html><html><body>
+<script>
+const base = '__APP__'; // filled in by tests/run.sh
+const routes = ['#/', '#/card/combat', '#/card/equipment', '#/card/features', '#/card/skills', '#/card/abilities'];
+const widths = [320, 360, 640];
+const large = location.search.includes('large');
+const out = [];
+const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+(async () => {
+  for (const w of widths) {
+    for (const r of routes) {
+      const f = document.createElement('iframe');
+      f.style.cssText = 'width:' + w + 'px;height:800px;border:0';
+      f.src = base + r;
+      document.body.appendChild(f);
+      await wait(600);
+      if (large) { f.contentDocument.documentElement.setAttribute('data-text', 'large'); f.contentWindow.WASD.hub.render && f.contentDocument.querySelectorAll('.card__toggle[aria-expanded=false]').forEach((b) => b.click()); await wait(200); }
+      try {
+        const d = f.contentDocument.documentElement;
+        const over = d.scrollWidth - d.clientWidth;
+        let culprit = '';
+        if (over > 0) {
+          const bad = [...f.contentDocument.querySelectorAll('body *')].filter((e) => e.getBoundingClientRect().right > d.clientWidth + 1).slice(0, 3);
+          culprit = bad.map((e) => e.tagName + '.' + e.className + '#' + e.id).join(' ; ');
+        }
+        out.push((over > 0 ? 'FAIL sideways scroll ' : 'PASS no sideways scroll ') + w + 'px ' + r + ' scrollW=' + d.scrollWidth + ' clientW=' + d.clientWidth + ' ' + culprit);
+      } catch (e) { out.push('FAIL ' + e.message); }
+      f.remove();
+    }
+  }
+  const pre = document.createElement('pre'); pre.id = 'test-out'; pre.textContent = out.join('\n'); document.body.appendChild(pre);
+})();
+</script></body></html>

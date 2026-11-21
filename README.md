@@ -27,6 +27,7 @@ AI-DISCLOSURE.md             Record of AI-generated work (course requirement)
 PLAN.md                      Build plan and status
 DEMO-SCRIPT.md               5-minute live demo, click by click
 ACCESSIBILITY.md             How accessibility was tested, what was fixed, known limits
+tests/                       Automated tests + how to test: see tests/README.md
 fonts/                       Atkinson Hyperlegible (bundled, so the page works offline)
 css/
   base.css                   Tokens (colors from the style guide, spacing in rem), font, focus ring, buttons, helpers
@@ -133,6 +134,18 @@ The files most likely to conflict are `index.html` (script/link tags) and `css/c
 - It's **Quick Page** everywhere (UI text, code, docs). Never "Quick Jump".
 - Card ids: `combat`, `abilities`, `skills`, `spellcasting`, `equipment`, `features`, `identity`.
 
+## Testing
+
+Before every push, run the automated tests from the project folder (Git Bash on Windows):
+
+```bash
+bash tests/run.sh          # about 1 minute
+bash tests/run.sh all      # + accessibility audit and random testing
+```
+
+You need Edge or Chrome installed; nothing else. **[tests/README.md](tests/README.md)** explains what each
+suite checks, how to read the results, the 10-minute manual keyboard and screen-reader check, and how to add a test.
+
 ## Accessibility checklist (check before every PR)
 
 - [ ] Works with **keyboard only**: Tab to everything, Enter/Space activates, no traps.
@@ -144,6 +157,7 @@ The files most likely to conflict are `index.html` (script/link tags) and `css/c
 - [ ] Visual order == DOM order (no CSS `order`, no dense grid placement).
 - [ ] Status changes (rolls, moves) are announced with `WASD.announce()`.
 - [ ] Tested once with a screen reader: NVDA (Windows, free), VoiceOver (Mac/iPhone), or TalkBack (Android).
+- [ ] `bash tests/run.sh` passes (use `all` if you touched styles, dialogs or anything announced).
 
 ## Open team decisions
 
