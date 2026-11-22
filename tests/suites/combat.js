@@ -54,6 +54,35 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     ok(/piercing$/.test(WASD.lastRoll.total), 'damage keeps type: ' + WASD.lastRoll.total);
     ok(!$('#roll-hit-sneak') && !!$('#roll-dmg-sneak'), 'Sneak Attack has damage but no to-hit button');
     ok(WASD.character.combat.attacks[2].damage[0].dice === '2d6', 'sneak 2d6 at L4');
+    // A natural 20 must say how 2014 crits work (roll the damage dice twice).
+    const realRoll = WASD.dice.roll;
+    WASD.dice.roll = (n) => Array(n).fill(20);
+    try { click('#roll-hit-shortsword'); await tick(120); } finally { WASD.dice.roll = realRoll; }
+    ok(/critical hit/.test(WASD.lastRoll.note) && /damage dice twice/.test(WASD.lastRoll.note), 'nat 20 note: ' + WASD.lastRoll.note);
+    // 2014 crits (SRD 5.1 "Critical Hits"): roll ALL the attack's damage dice twice, Sneak Attack too, add modifiers once.
+    // Every die is forced to roll 1, so the expected totals are exact.
+    ok($('#crit-toggle').getAttribute('aria-pressed') === 'true', 'nat 20 turns Critical hit on');
+    const ones = async (fn) => {
+      crypto.getRandomValues = (b) => { b.fill(0); return b; }; // every die rolls 1
+      try { await fn(); } finally { delete crypto.getRandomValues; }
+    };
+    await ones(async () => { click('#roll-dmg-shortsword'); await tick(120); });
+    // Shortsword 1d6+3 -> crit 2d6+3 = 1+1+3 = 5
+    ok(WASD.lastRoll.lines[0] === '2d6 piercing: rolled 1, 1, +3 = 5' && WASD.lastRoll.total === '5 piercing', 'crit shortsword 2d6+3 = 5: ' + WASD.lastRoll.lines[0]);
+    ok(/critical hit/.test(WASD.lastRoll.title) && /dice rolled twice, bonus added once/.test(WASD.lastRoll.note), 'crit damage labelled: ' + WASD.lastRoll.title);
+    ok(/Shortsword critical damage: 5 piercing/.test(status()), 'announce crit damage: ' + status());
+    await ones(async () => { click('#roll-dmg-sneak'); await tick(120); });
+    ok(WASD.lastRoll.lines[0].startsWith('4d6 ') && /= 4$/.test(WASD.lastRoll.lines[0]), 'crit Sneak Attack 2d6 -> 4d6 = 4: ' + WASD.lastRoll.lines[0]);
+    WASD.dice.roll = (n) => Array(n).fill(10);
+    try { click('#roll-hit-shortsword'); await tick(120); } finally { WASD.dice.roll = realRoll; }
+    ok($('#crit-toggle').getAttribute('aria-pressed') === 'false', 'a normal roll to hit turns Critical hit off');
+    await ones(async () => { click('#roll-dmg-shortsword'); await tick(120); });
+    ok(WASD.lastRoll.lines[0] === '1d6 piercing: rolled 1, +3 = 4' && !/critical/.test(WASD.lastRoll.title), 'normal damage 1d6+3 = 4: ' + WASD.lastRoll.lines[0]);
+    $('#crit-toggle').focus(); click('#crit-toggle'); await tick(120);
+    ok($('#crit-toggle').getAttribute('aria-pressed') === 'true' && /Critical hit on/.test(status()), 'toggle on by hand, announced: ' + status());
+    ok(document.activeElement.id === 'crit-toggle', 'focus stays on Critical hit');
+    click('#crit-toggle'); await tick(120);
+    ok($('#crit-toggle').getAttribute('aria-pressed') === 'false' && /Critical hit off/.test(status()), 'toggle off: ' + status());
 
     location.hash = '#/card/equipment'; await tick(150);
     ok(!$('#view-card').hidden, 'equipment page shown');
@@ -61,6 +90,9 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     click('#equip-ring'); await tick(120);
     ok(WASD.character.combat.armorClass === 16, 'ring equipped -> AC 16');
     ok(/Ring of Protection equipped.*Armor Class 16/.test(status()), 'announce: ' + status());
+    const save = (k) => WASD.character.abilities.find((a) => a.key === k).save;
+    ok(save('dex') === 6 && save('str') === 1, `2014 ring: +1 to every saving throw (Dex +6, Str +1; got ${save('dex')}, ${save('str')})`);
+    ok(/requires attunement/.test($('#equip-panel-items').textContent), 'ring shows "requires attunement"');
     ok(document.activeElement.id === 'equip-ring', 'focus kept on equip button');
     click('#equip-studded'); await tick(120);
     ok(WASD.character.combat.armorClass === 14, 'armor off, ring on -> 14 (got ' + WASD.character.combat.armorClass + ')');
@@ -116,6 +148,10 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     ok($('#confirm-dialog').open && document.activeElement.id === 'confirm-no', 'confirm opens with Cancel focused');
     click('#confirm-no'); await tick(100);
     ok(!$('#confirm-dialog').open && document.activeElement.id === 'reset-demo' && WASD.raw.equipment.coins.gp === 16, 'cancel keeps state, focus back');
+    // Cancel, then reopen straight away: the first dialog's late "close" event must not cancel the new one.
+    click('#reset-demo'); await tick(100); click('#confirm-no'); click('#reset-demo'); await tick(100);
+    ok($('#confirm-dialog').open, 'confirm reopened right after Cancel stays open');
+    click('#confirm-no'); await tick(100);
     click('#reset-demo'); await tick(100); click('#confirm-yes'); await tick(200);
     ok(WASD.raw.combat.hp.current === 27 && WASD.raw.equipment.coins.gp === 15 && WASD.raw.equipment.items.find((i) => i.id === 'arrows').qty === 20, 'reset restores HP 27, gp 15, arrows 20');
     ok(/Demo reset\. Kira is level 4 with 27 of 31 HP/.test(status()), 'announce reset: ' + status());

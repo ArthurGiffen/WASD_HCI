@@ -68,8 +68,9 @@
 
   function itemRow(item) {
     const { esc } = WASD;
-    const mods = (item.modifiers || []).map(WASD.rules.formatModifier).join(', ');
-    const note = mods ? ` <span class="muted">${esc(mods)}</span>` : '';
+    const details = (item.modifiers || []).map(WASD.rules.formatModifier);
+    if (item.attunement) details.push('requires attunement');
+    const note = details.length ? ` <span class="muted">${esc(details.join(', '))}</span>` : '';
     const btn = EQUIPPABLE.includes(item.kind) ? `
       <button type="button" class="btn btn--small btn--toggle" id="equip-${item.id}" data-action="equip-toggle"
               data-item="${item.id}" aria-pressed="${!!item.equipped}" aria-label="Equipped: ${esc(item.name)}">

@@ -4,6 +4,8 @@
  *   WASD.dice.roll(2, 6)        -> [3, 5]      (two d6)
  *   WASD.dice.parse('1d6')      -> { count: 1, sides: 6 }
  *   WASD.dice.rollParts(parts)  -> rolls each damage part SEPARATELY (by type)
+ *   WASD.dice.rollParts(parts, { crit: true }) -> critical hit: every part's dice
+ *                                 are rolled twice, the bonus is added once (2014 rules)
  */
 (function (WASD) {
   'use strict';
@@ -30,12 +32,15 @@
   /**
    * parts: [{ dice:'1d6', bonus:3, type:'piercing' }, ...]
    * returns: [{ type, dice, bonus, rolls:[4], total:7 }, ...]  (one entry per damage type)
+   * With { crit: true }, '1d6' is rolled as 2d6 and `dice` says '2d6'.
    */
-  function rollParts(parts) {
+  function rollParts(parts, opts) {
+    const times = opts && opts.crit ? 2 : 1;
     return parts.map((p) => {
       const { count, sides } = parse(p.dice);
-      const rolls = roll(count, sides);
-      return { type: p.type, dice: p.dice, bonus: p.bonus, rolls, total: sum(rolls) + p.bonus };
+      const rolls = roll(count * times, sides);
+      const bonus = p.bonus || 0;
+      return { type: p.type, dice: `${count * times}d${sides}`, bonus, rolls, total: sum(rolls) + bonus };
     });
   }
 

@@ -9,7 +9,7 @@ A responsive web app (plain HTML/CSS/JS, no framework, no build step) that shows
 Primary users are sighted players. The sheet must also be fully usable by blind and low-vision players.
 
 - **Demo character:** "Kira", Human Rogue (Thief), level 4. Use the data in `js/data/sample-character.js`. If a stat is missing, ask. Do not invent it.
-- **Rules edition:** 2014 (decided 2026-11-20).
+- **Rules edition: D&D 5e 2014 only** (decided 2026-11-20, made a project rule 2026-11-21). This means the 2014 Player's Handbook and SRD 5.1, not the 2024 revision. Rules, numbers, feature names and terms must all be 2014: race, not species; ability increases from race; no origin feats, Weapon Mastery or Cunning Strike; class features at their 2014 levels. Also recorded in `CLAUDE.md`.
 - **Do not add frameworks or dependencies** without asking.
 
 ### Accessibility rules (apply to every change)
@@ -39,7 +39,8 @@ Primary users are sighted players. The sheet must also be fully usable by blind 
 | ✅ | Remaining cards, style guide applied, Reset demo |
 | ✅ | Task 2 Level Up (2014 rules) and Task 3 guided build, on a shared wizard dialog |
 | ✅ | Themes (5) + Large text, accessibility pass (`ACCESSIBILITY.md`), demo script (`DEMO-SCRIPT.md`) |
-| ⬜ | Team: review `js/data/classes.js` summaries; one real screen-reader run; rehearse `DEMO-SCRIPT.md` |
+| ✅ | `js/data/classes.js` checked against SRD 5.1 (2026-11-21): third cantrip, Life Domain, Dwarf traits, SRD subraces, 2014 critical hits |
+| ⬜ | Team: one real screen-reader run; rehearse `DEMO-SCRIPT.md`; retake screenshot 04 (it still shows "Elf Wizard") |
 | | Nothing is committed yet. |
 
 ## Model plan
@@ -53,7 +54,7 @@ Primary users are sighted players. The sheet must also be fully usable by blind 
 
 1. **Layout:** current HP / max HP, temp HP, AC, initiative, speed, attacks. AC and HP come first, as in the mockup. Use the existing card pattern.
 2. **HP +/−:** Damage and Heal buttons with a number input for the amount (default 1).
-   HP cannot go below 0 or above max. Show a clear state at 0 HP. Show a "Bloodied" text label with a ⚠ icon at low HP (not color alone).
+   HP cannot go below 0 or above max. Show a clear state at 0 HP. Show a "Half HP or less" text label with a ⚠ icon at low HP (not color alone). Not "Bloodied", which is a 2024 rules term.
    Announce each change, e.g. "Kira took 5 damage. HP 18 of 31."
    **Testing feedback #1:** Initiative, Speed and Proficiency bonus show on the main page (Hub) without opening the card, as in the Combat mockup tiles.
    **Testing feedback #7:** attacks have a separate **Roll to hit** button and **Roll damage** button. Damage is shown and rolled **per damage type**
@@ -71,7 +72,7 @@ A step-by-step dialog. Focus moves in, Esc closes, focus returns to the Level Up
 1. **HP:** roll or take the average, using the class hit die + CON modifier.
 2. **Proficiency bonus:** +2 → +3, and everything that depends on it.
 3. **New features:** level-5 features from the existing data. If the data lacks them, stop and ask. Do not invent rules.
-   (Rogue 5 in 2014 rules is Uncanny Dodge and Sneak Attack 3d6. Needs confirming against the chosen edition.)
+   (Rogue 5 in 2014 rules is Uncanny Dodge and Sneak Attack 3d6 only. There is no Cunning Strike, which is a 2024 feature.)
 4. **Review, then confirm.** Announce "Kira is now level 5".
 
 Check with Kira: PB +3, Stealth +9, Shortsword to-hit +6, passive Perception 14, hit dice 5d8.
@@ -164,4 +165,4 @@ These appear in the slides but not in the task prompts. Cut them or build them o
 ## Open questions
 
 - Which of the "beyond the task list" features, if any, are in the demo?
-- Is there a `CLAUDE.md` for this repo? The pasted project rules (accessibility, working style) could live there. Otherwise this file carries them.
+- ~~Is there a `CLAUDE.md` for this repo?~~ Yes, since 2026-11-21. It holds the 2014-rules rule and a short summary of the standing rules. This file still has the details.

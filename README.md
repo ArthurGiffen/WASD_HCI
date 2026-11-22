@@ -42,7 +42,7 @@ js/
   tabs.js                    WASD.tabs.render(): one accessible tab component (Equipment, Features)
   dice.js                    Dice rolling (no DOM)
   wizard.js                  WASD.wizard.open(): step-by-step dialog used by Level Up and New character
-  data/classes.js            2014 class/race data for Level Up and the guided build (paraphrased, review it)
+  data/classes.js            2014 class/race data for Level Up and the guided build (paraphrased, checked against SRD 5.1)
   data/sample-character.js   Kira, Human Rogue 4: RAW inputs only (scores, proficiencies, level, gear)
   rules.js                   5e math: WASD.rules.derive(raw) -> the sheet the cards read (mods, saves, AC…)
   character-store.js         Load/save (localStorage), WASD.updateCharacter(), WASD.resetCharacter()
@@ -158,6 +158,17 @@ suite checks, how to read the results, the 10-minute manual keyboard and screen-
 - [ ] Status changes (rolls, moves) are announced with `WASD.announce()`.
 - [ ] Tested once with a screen reader: NVDA (Windows, free), VoiceOver (Mac/iPhone), or TalkBack (Android).
 - [ ] `bash tests/run.sh` passes (use `all` if you touched styles, dialogs or anything announced).
+
+## Rules source and attribution
+
+The rules data in `js/data/` follows D&D 5th edition **2014** rules and was checked against the
+System Reference Document 5.1. All descriptions are our own short paraphrases, not copied rulebook text.
+
+This work includes material taken from the System Reference Document 5.1 ("SRD 5.1") by Wizards of the Coast LLC
+and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the
+Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
+
+WASD Character Sheet is a student project. It is not affiliated with or endorsed by Wizards of the Coast.
 
 ## Open team decisions
 

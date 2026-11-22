@@ -21,6 +21,7 @@ ROOT_URL="${ROOT_URL// /%20}"
 OUT="$ROOT/tests/.out"            # generated pages, browser profiles, logs (git-ignored)
 OUT_NATIVE="$ROOT_NATIVE/tests/.out"
 mkdir -p "$OUT"
+rm -rf "$OUT"/profile-* "$OUT"/*-browser.log 2>/dev/null   # leftovers from earlier runs (best effort)
 
 QUICK="combat wizards demo extra saved-data layout"
 ALL="$QUICK audit monkey"
@@ -47,24 +48,51 @@ fi
 
 # Build a copy of index.html that loads the app from the repo plus the test scripts.
 #   $1 page name   $2 body scripts (space separated, relative to tests/)   $3 optional head script
+REPORTER="<script src=\"$ROOT_URL/tests/reporter.js\"></script>"   # copies results to the console (see tests/reporter.js)
 build_app_page() {
-  local tags="" head=""
+  local tags="" head="$REPORTER"
   for s in $2; do tags="$tags<script src=\"$ROOT_URL/tests/$s\"></script>"; done
-  [ -n "${3:-}" ] && head="<script src=\"$ROOT_URL/tests/$3\"></script>"
+  [ -n "${3:-}" ] && head="$head<script src=\"$ROOT_URL/tests/$3\"></script>"
   sed -e "s|src=\"js/|src=\"$ROOT_URL/js/|g" -e "s|href=\"css/|href=\"$ROOT_URL/css/|g" \
       -e "s|<head>|<head>$head|" -e "s|</body>|$tags</body>|" "$ROOT/index.html" > "$OUT/$1.html"
 }
 
 # Open a page headless and print what the test wrote into <pre id="test-out">.
 #   $1 page name   $2 query string   $3 window width   $4 time budget (ms)   $5 extra browser flag
+# Results come from --dump-dom. If that prints nothing (newer Edge on Windows),
+# they are read from the browser's log file instead (see tests/reporter.js).
+RUN_N=0
 run_page() {
-  local profile="$OUT_NATIVE/profile-$1"
-  rm -rf "$OUT/profile-$1"
-  "$BROWSER" --headless=new --disable-gpu --no-first-run --allow-file-access-from-files ${5:-} \
+  # Every run gets its own browser profile and log. Reusing a profile while the
+  # previous browser is still closing would hand the page to that old browser.
+  # $$ (this script's process id) keeps names unique across runs too: Windows can
+  # keep the last log locked a moment after the browser exits, so it can't
+  # always be deleted, and a reused name would mix in the old run's results.
+  RUN_N=$((RUN_N + 1))
+  local id="$1-$$-$RUN_N" dom
+  local profile="$OUT_NATIVE/profile-$id" blog="$OUT/$id-browser.log"
+  rm -rf "$OUT/profile-$id" "$blog" 2>/dev/null
+  dom="$("$BROWSER" --headless=new --disable-gpu --no-first-run --allow-file-access-from-files ${5:-} \
     --user-data-dir="$profile" --window-size="$3,900" --virtual-time-budget="$4" \
-    --dump-dom "$ROOT_URL/tests/.out/$1.html$2" 2>/dev/null \
-  | sed -n '/<pre id="test-out"/,/<\/pre>/p' \
-  | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&quot;/"/g' -e "s/&#39;/'/g" -e 's/&amp;/\&/g'
+    --enable-logging --v=0 --log-file="$OUT_NATIVE/$id-browser.log" \
+    --dump-dom "$ROOT_URL/tests/.out/$1.html$2" 2>/dev/null)"
+  if printf '%s' "$dom" | grep -q '<pre id="test-out"'; then
+    printf '%s\n' "$dom" | sed -n '/<pre id="test-out"/,/<\/pre>/p' \
+    | sed -e 's/<[^>]*>//g' -e 's/&lt;/</g' -e 's/&gt;/>/g' -e 's/&quot;/"/g' -e "s/&#39;/'/g" -e 's/&amp;/\&/g'
+  else
+    # The launcher may return while the real browser keeps running in the
+    # background, so wait for the end marker (up to the time budget + 60 s).
+    local waited=0 limit=$(( $4 / 1000 + 60 ))
+    until grep -aq 'WASDOUT-END' "$blog" 2>/dev/null || [ "$waited" -ge "$limit" ]; do
+      sleep 1; waited=$((waited + 1))
+    done
+    sleep 1   # let the browser finish writing the log
+    # Log lines look like: [..:INFO:CONSOLE:12] "WASDOUT PASS something", source: file:///... (12)
+    [ -f "$blog" ] && tr -d '\r' < "$blog" | sed -n 's/^.*:CONSOLE[^"]*"WASDOUT \(.*\)", source: .*$/\1/p'
+  fi
+  # Wait for the browser to close (Windows keeps its profile locked until then) and clean up.
+  local w=0
+  until rm -rf "$OUT/profile-$id" 2>/dev/null || [ "$w" -ge 60 ]; do sleep 1; w=$((w + 1)); done
 }
 
 TOTAL_PASS=0; TOTAL_FAIL=0; FAILED_SUITES=""
@@ -98,7 +126,7 @@ run_suite() {
     extra)      build_app_page extra "suites/extra.js";     check extra extra "" 1280 $((30000*S)) ;;
     saved-data) build_app_page saved-data "suites/saved-data.js" "suites/saved-data-head.js"
                 for q in "" "?old=1" "?badjson=1"; do check saved-data saved-data "$q" 1280 $((20000*S)); done ;;
-    layout)     sed "s|__APP__|$ROOT_URL/index.html|" "$ROOT/tests/suites/layout.html" > "$OUT/layout.html"
+    layout)     sed -e "s|__APP__|$ROOT_URL/index.html|" -e "s|<body>|<body>$REPORTER|" "$ROOT/tests/suites/layout.html" > "$OUT/layout.html"
                 for q in "" "?large"; do check layout layout "$q" 1280 $((90000*S)) --disable-web-security; done ;;
     audit)      build_app_page audit "vendor/axe.min.js suites/audit.js"
                 check audit audit "" 1280 $((600000*S)) ;;

@@ -35,7 +35,7 @@
 
   /** Display names for item modifier stats. */
   const STAT_LABELS = {
-    toHit: 'to hit', damage: 'damage', ac: 'AC', speed: 'Speed',
+    toHit: 'to hit', damage: 'damage', ac: 'AC', speed: 'Speed', save: 'saving throws',
     str: 'Strength', dex: 'Dexterity', con: 'Constitution',
     int: 'Intelligence', wis: 'Wisdom', cha: 'Charisma',
   };
@@ -83,7 +83,8 @@
         name: a.name,
         score: scores[a.key],
         mod: mods[a.key],
-        save: mods[a.key] + (saveProficient ? pb : 0),
+        // 'save' item bonuses (e.g. Ring of Protection) apply to every saving throw.
+        save: mods[a.key] + (saveProficient ? pb : 0) + b('save'),
         saveProficient,
       };
     });

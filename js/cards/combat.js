@@ -14,12 +14,13 @@
   'use strict';
 
   // Things typed into the card that must survive a redraw.
-  const ui = { amount: '1', temp: '0', error: '', tempError: '' };
+  // crit: the "Critical hit" toggle. When on, Roll damage rolls the damage dice twice.
+  const ui = { amount: '1', temp: '0', error: '', tempError: '', crit: false };
   WASD.lastRoll = null; // { title, lines: [...], total, note } shown under "Last roll"
 
   // A new or reset character starts with a clean card: no old errors, rolls or typed amounts.
   document.addEventListener('wasd:character-replaced', () => {
-    Object.assign(ui, { amount: '1', temp: '0', error: '', tempError: '' });
+    Object.assign(ui, { amount: '1', temp: '0', error: '', tempError: '', crit: false });
     WASD.lastRoll = null;
   });
 
@@ -121,7 +122,9 @@
     const r = WASD.dice.roll(1, 20)[0];
     const total = r + a.toHit;
     let note = '';
-    if (r === 20) note = 'Natural 20: critical hit.';
+    // Each roll to hit sets the Critical hit toggle: on for a natural 20, off otherwise.
+    ui.crit = r === 20;
+    if (r === 20) note = 'Natural 20: critical hit. Critical hit is now on, so Roll damage rolls the damage dice twice.';
     else if (r === 1) note = 'Natural 1: automatic miss.';
     WASD.lastRoll = {
       title: `${a.name}: roll to hit`,
@@ -136,16 +139,30 @@
   WASD.actions['roll-damage'] = (el) => {
     const a = findAttack(el.dataset.attack);
     if (!a) return;
-    const parts = WASD.dice.rollParts(a.damage).map((p) => ({ ...p, total: Math.max(0, p.total) }));
+    // 2014 critical hit: roll all of the attack's damage dice twice (Sneak Attack too),
+    // then add modifiers once. rollParts does the doubling.
+    const crit = ui.crit;
+    const parts = WASD.dice.rollParts(a.damage, { crit }).map((p) => ({ ...p, total: Math.max(0, p.total) }));
+    const notes = [];
+    if (crit) notes.push('Critical hit: damage dice rolled twice, bonus added once.');
+    if (parts.length > 1) notes.push('Apply resistance per damage type.');
     // One line and one total PER DAMAGE TYPE, so resistance/vulnerability can be applied per type.
     WASD.lastRoll = {
-      title: `${a.name}: roll damage`,
+      title: `${a.name}: roll damage${crit ? ' (critical hit)' : ''}`,
       lines: parts.map((p) => `${p.dice} ${p.type}: rolled ${p.rolls.join(', ')}${p.bonus ? `, ${signed(p.bonus)}` : ''} = ${p.total}`),
       total: parts.map((p) => `${p.total} ${p.type}`).join(' + '),
-      note: parts.length > 1 ? 'Apply resistance per damage type.' : '',
+      note: notes.join(' '),
     };
     WASD.refresh();
-    WASD.announce(`${a.name} damage: ${parts.map((p) => `${p.total} ${p.type}`).join(', ')}.`);
+    WASD.announce(`${a.name} ${crit ? 'critical ' : ''}damage: ${parts.map((p) => `${p.total} ${p.type}`).join(', ')}.`);
+  };
+
+  WASD.actions['crit-toggle'] = () => {
+    ui.crit = !ui.crit;
+    WASD.refresh();
+    WASD.announce(ui.crit
+      ? 'Critical hit on. Roll damage rolls the damage dice twice.'
+      : 'Critical hit off. Damage dice are rolled normally.');
   };
 
   // ---------- Card ----------
@@ -171,7 +188,8 @@
       if (hp.current === 0) {
         state = `<p class="hp-state hp-state--down">${icon('warning')}<span><strong>Down: 0 HP.</strong> ${esc(ch.identity.name)} is unconscious.</span></p>`;
       } else if (hp.current <= Math.floor(hp.max / 2)) {
-        state = `<p class="hp-state hp-state--bloodied">${icon('warning')}<span><strong>Bloodied:</strong> at half HP or less.</span></p>`;
+        // Plain words on purpose: "Bloodied" is a 2024 rules term, and this app follows 2014.
+        state = `<p class="hp-state hp-state--low">${icon('warning')}<span><strong>Half HP or less.</strong></span></p>`;
       }
 
       const attacks = c.attacks.map((a) => {
@@ -250,6 +268,11 @@
         ${ui.tempError ? `<p class="field-error" id="temp-error">${icon('warning')} ${esc(ui.tempError)}</p>` : ''}
 
         <${h}>Attacks</${h}>
+        <div class="crit-toggle">
+          <button type="button" class="btn btn--small btn--toggle" id="crit-toggle" data-action="crit-toggle"
+                  aria-pressed="${ui.crit}" aria-describedby="crit-hint">Critical hit</button>
+          <p class="hint" id="crit-hint">Doubles the damage dice. A natural 20 turns it on; any other roll to hit turns it off.</p>
+        </div>
         <ul class="attack-list">${attacks || '<li>No weapons equipped. Equip a weapon on the Equipment card.</li>'}</ul>
         <p class="muted">Hit dice: ${esc(c.hitDice)}</p>
         ${lastRoll}`;

@@ -69,7 +69,8 @@
   yesBtn.addEventListener('click', () => finish(true));
   noBtn.addEventListener('click', () => finish(false));
   // Escape / backdrop close the dialog directly: count that as "No".
-  dlg.addEventListener('close', () => { if (resolver) finish(false); });
+  // Ignore a late "close" event that arrives after the dialog was opened again.
+  dlg.addEventListener('close', () => { if (resolver && !dlg.open) finish(false); });
 
   WASD.confirm = function ({ title, message, confirmLabel, opener }) {
     titleEl.textContent = title;

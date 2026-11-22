@@ -95,6 +95,7 @@ const setVal = (sel, v, ev) => { const el = $(sel); el.value = v; el.dispatchEve
     ok(/Choose a class/.test($('#wizard-error').textContent), 'class required');
     click('#className-Wizard'); await tick(100); await next();
     ok(heading() === 'Step 3 of 5: Race', 'race step');
+    ok(/Elf \(High Elf\)/.test($('label[for="race-Elf"]').textContent) && /^Human/.test($('label[for="race-Human"]').textContent.trim()), 'race labels name the SRD subrace');
     click('#race-Elf'); await tick(100); await next();
     ok(heading() === 'Step 4 of 5: Ability scores', 'scores step');
     await next();
@@ -103,6 +104,7 @@ const setVal = (sel, v, ev) => { const el = $(sel); el.value = v; el.dispatchEve
     ok($('#score-int').value === '15' && $('#score-str').value === '8', 'suggested scores filled');
     ok(/Numbers left: none/.test(body()), 'no numbers left');
     ok(/13 \+2 Elf = 15/.test($('#score-dex-result').textContent), 'race bonus shown: ' + $('#score-dex-result').textContent);
+    ok(/15 \+1 High Elf = 16/.test($('#score-int-result').textContent), 'subrace bonus shown: ' + $('#score-int-result').textContent);
     setVal('#score-str', '14', 'change'); await tick(100);
     ok(document.activeElement.id === 'score-str', 'focus kept on select after change');
     ok(/used by Constitution/.test($('#score-str').innerHTML), 'options say which ability uses a number');
@@ -112,14 +114,16 @@ const setVal = (sel, v, ev) => { const el = $(sel); el.value = v; el.dispatchEve
     ok(heading() === 'Step 5 of 5: Review' && $('#wizard-next').textContent === 'Create character', 'review step');
     const r = body();
     ok(/Hit points 8/.test(r) && /Armor Class 12 \(No armor\)/.test(r) && /Speed 30 ft/.test(r), 'review numbers (HP 8, AC 12): ' + (r.match(/Hit points.*?Speed 30 ft/) || [''])[0]);
-    ok(r.includes('Perception +3') && r.includes('Arcana +4'), 'skills incl. elf Perception: ' + (r.match(/Proficient skills.*?Features/) || [''])[0]);
+    // High Elf Int 15+1=16 (+3): Arcana +3 +2 = +5. Wis 12 (+1): Perception +1 +2 = +3.
+    ok(r.includes('Perception +3') && r.includes('Arcana +5'), 'skills incl. elf Perception: ' + (r.match(/Proficient skills.*?Features/) || [''])[0]);
     ok(/replaces Kira/.test(r), 'replace warning shown');
     await next(); await tick(150);
     ok(!$('#wizard-dialog').open && WASD.raw.identity.name === 'Mira' && WASD.raw.identity.level === 1, 'Mira created');
-    ok(/Created Mira, a level 1 Elf Wizard\. HP 8, AC 12/.test(status()), 'announced: ' + status());
+    ok(/Created Mira, a level 1 High Elf Wizard\. HP 8, AC 12/.test(status()), 'announced: ' + status());
     ok(document.activeElement.id === 'new-character', 'focus back on New character');
     ok($('#char-name').textContent === 'Mira', 'header name Mira');
-    ok($('#card-spellcasting-toggle .card__summary').textContent === 'Save DC 12 · Spell attack +4', 'spell card: ' + $('#card-spellcasting-toggle .card__summary').textContent);
+    // Spell save DC 8 + PB 2 + Int 3 = 13; spell attack 2 + 3 = +5.
+    ok($('#card-spellcasting-toggle .card__summary').textContent === 'Save DC 13 · Spell attack +5', 'spell card: ' + $('#card-spellcasting-toggle .card__summary').textContent);
     location.hash = '#/card/spellcasting'; await tick(120);
     ok(/cantrip/.test($('#card-view-body').textContent) && /2 of 2 slots left/.test($('#card-view-body').textContent), 'cantrips and slots shown');
     location.hash = '#/card/identity'; await tick(120);

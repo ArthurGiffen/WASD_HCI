@@ -57,13 +57,15 @@ WASD.sampleCharacter = {
   equipment: {
     // kind: 'armor' | 'weapon' | 'gear' | 'accessory'. Only armor, weapons and accessories can be equipped.
     // modifiers apply ONLY while the item is equipped.
-    // stat: toHit, damage, ac, speed, str, dex, con, int, wis, cha
+    // stat: toHit, damage, ac, speed, save (all saving throws), str, dex, con, int, wis, cha
+    // attunement: true shows "requires attunement" (2014 rules: a creature can attune to 3 items at most).
     items: [
       { id: 'studded', name: 'Studded leather', kind: 'armor', qty: 1, equipped: true, armor: { base: 12, maxDex: null }, modifiers: [] },
       { id: 'shortsword', name: 'Shortsword', kind: 'weapon', qty: 1, equipped: true, modifiers: [] },
       { id: 'shortbow', name: 'Shortbow', kind: 'weapon', qty: 1, equipped: true, modifiers: [] },
       // DEMO ITEM (not in Kira's original gear): gives the Modifiers tab something to show. Delete if not wanted.
-      { id: 'ring', name: 'Ring of Protection', kind: 'accessory', qty: 1, equipped: false, modifiers: [{ stat: 'ac', value: 1 }] },
+      { id: 'ring', name: 'Ring of Protection', kind: 'accessory', qty: 1, equipped: false, attunement: true,
+        modifiers: [{ stat: 'ac', value: 1 }, { stat: 'save', value: 1 }] },
       { id: 'arrows', name: 'Arrows', kind: 'gear', qty: 20, consumable: true },
       { id: 'thieves-tools', name: "Thieves' tools", kind: 'gear', qty: 1 },
       { id: 'burglars-pack', name: "Burglar's pack", kind: 'gear', qty: 1 },
@@ -75,7 +77,7 @@ WASD.sampleCharacter = {
 
   features: [
     { name: 'Expertise',         source: 'Rogue 1', summary: 'Double proficiency bonus on Stealth and Sleight of Hand.' },
-    { name: 'Sneak Attack',      source: 'Rogue 1', summary: 'Extra damage once per turn with advantage or an ally next to the target.' },
+    { name: 'Sneak Attack',      source: 'Rogue 1', summary: 'Once per turn, extra damage when you hit with a finesse or ranged weapon and have advantage, or an ally is next to the target and you don’t have disadvantage.' },
     { name: "Thieves' Cant",     source: 'Rogue 1', summary: 'Secret slang and signs shared by rogues.' },
     { name: 'Cunning Action',    source: 'Rogue 2', summary: 'Dash, Disengage, or Hide as a bonus action.' },
     { name: 'Fast Hands',        source: 'Thief 3', summary: 'Use an object or thieves’ tools as a bonus action.' },

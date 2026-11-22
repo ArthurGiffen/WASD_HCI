@@ -22,9 +22,10 @@ const status = () => $('#status').textContent;
     type('#hp-amount', '5'); await click('#hp-damage');
     ok(WASD.raw.combat.hp.current === 22 && status() === 'Kira took 5 damage. HP 22 of 31.', '5 damage: ' + status());
     type('#hp-amount', '10'); await click('#hp-damage');
-    ok(WASD.raw.combat.hp.current === 12 && !!$('.hp-state--bloodied'), '10 damage -> 12, Bloodied');
+    ok(WASD.raw.combat.hp.current === 12 && !!$('.hp-state--low') && /Half HP or less/.test($('.hp-state--low').textContent), '10 damage -> 12, "Half HP or less" shown');
+    ok(!/bloodied/i.test(document.body.innerText), 'no 2024 "Bloodied" wording on screen');
     type('#hp-amount', '5'); await click('#hp-heal');
-    ok(WASD.raw.combat.hp.current === 17 && !$('.hp-state--bloodied'), 'heal 5 -> 17, not bloodied');
+    ok(WASD.raw.combat.hp.current === 17 && !$('.hp-state--low'), 'heal 5 -> 17, low-HP label gone');
     await click('#roll-hit-shortsword'); await click('#roll-dmg-shortsword');
     ok(/piercing/.test($('.roll-result').textContent), 'damage shown as piercing');
     // 3 Quick Page + Equipment
@@ -59,7 +60,7 @@ const status = () => $('#status').textContent;
     const rv = $('#wizard-body').innerText.replace(/\s+/g, ' ');
     ok(/Hit points 8/.test(rv) && /Armor Class 12/.test(rv) && /Magic Missile/.test(rv), 'review HP 8, AC 12, spells');
     await click('#wizard-next'); await tick(150);
-    ok(/^Created Mira, a level 1 Elf Wizard\./.test(status()), 'status: ' + status());
+    ok(/^Created Mira, a level 1 High Elf Wizard\./.test(status()), 'status: ' + status());
     // 6 Themes
     await click('#settings-btn'); await click('#theme-contrast'); await click('#large-text');
     ok(document.documentElement.dataset.theme === 'contrast' && document.documentElement.dataset.text === 'large', 'contrast + large text');

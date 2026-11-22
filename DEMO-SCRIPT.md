@@ -28,11 +28,13 @@ If anything goes wrong mid-demo, **Reset demo** puts everything back. Refreshing
 | Do | Expect | Say |
 |---|---|---|
 | In **Amount**, type `5`, press **Damage**. | HP **22 / 31**. Status bar: "Kira took 5 damage. HP 22 of 31." | "Every change is announced to screen readers and shown in the status bar." |
-| Type `10`, press **Damage**. | HP **12 / 31** and a **⚠ Bloodied** label. | "Low HP isn't shown by color alone. There's an icon and a word." |
-| Type `5`, press **Heal**. | HP **17 / 31**, Bloodied disappears. | |
+| Type `10`, press **Damage**. | HP **12 / 31** and a **⚠ Half HP or less** label. | "Low HP isn't shown by color alone. There's an icon and a word." |
+| Type `5`, press **Heal**. | HP **17 / 31**, the label disappears. | |
 | On Shortsword, press **Roll to hit**, then **Roll damage**. | "Last roll" shows the d20 + 5. Damage shows **piercing** separately. | "To-hit and damage are separate rolls, and damage keeps its type. Testers told us combining them hid what caused the damage, which matters for resistances." |
 
 Keyboard version: Tab to Amount, type, Tab to Damage, press Enter. Focus stays on the button, so you can press Enter again.
+
+If **Roll to hit** shows a natural 20, the **Critical hit** button turns on (✓) and **Roll damage** rolls the damage dice twice. That is the 2014 rule, so just say "a critical hit doubles the dice, not the bonus."
 
 ## 3. Quick Page and Equipment (0:45)
 
@@ -41,7 +43,7 @@ Keyboard version: Tab to Amount, type, Tab to Damage, press Enter. Focus stays o
 | Press **Quick Page** (bottom bar), then press the **5** key. | Equipment page opens. | "Quick Page reaches any card in two actions. On a laptop the number keys jump straight there." |
 | Press **Equipped** on **Studded leather**. | Header AC **15 → 13**. Button loses its ✓. | "Equipping changes the real numbers. Unequip your armor and your AC drops." |
 | Press it again. | AC back to **15**. | |
-| Open the **Modifiers** tab (or press → on the tab strip). | Ring of Protection +1 AC, not equipped. | "Item bonuses live here, and only count while equipped." |
+| Open the **Modifiers** tab (or press → on the tab strip). | Ring of Protection +1 AC, +1 saving throws, not equipped. | "Item bonuses live here, and only count while equipped." |
 | Press **← Back to hub**. | | |
 
 ## 4. Level Up (1:15) — test task 2
@@ -61,11 +63,11 @@ Use **average**, not roll, so the numbers are predictable on stage.
 | Do | Expect |
 |---|---|
 | Hub → **New character**. Type `Mira`, press **Enter**. | Step 2 of 5: Class |
-| Choose **Wizard**, **Next**. Choose **Elf**, **Next**. | Step 4 of 5: Ability scores |
+| Choose **Wizard**, **Next**. Choose **Elf (High Elf)**, **Next**. | Step 4 of 5: Ability scores |
 | Press **Use suggested scores for Wizard**, **Next**. | Review: **HP 8, AC 12**, spells listed |
-| Press **Create character**. | "Created Mira, a level 1 Elf Wizard." Same cards, new character. |
+| Press **Create character**. | "Created Mira, a level 1 High Elf Wizard." Same cards, new character. |
 
-Say: "A new player builds a character in five short steps. Each dropdown says which ability already uses a number, so you can't get lost."
+Say: "A new player builds a character in five short steps. Each dropdown says which ability already uses a number, so you can't get lost. Our rules data is the free SRD, which has one subrace per race, so choosing Elf makes a High Elf."
 
 ## 6. Themes and accessibility (0:20)
 

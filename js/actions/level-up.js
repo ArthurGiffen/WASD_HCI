@@ -54,7 +54,9 @@
     const die = raw.combat.hitDie;
     const con = WASD.rules.abilityMod(WASD.character.abilities.find((a) => a.key === 'con').score);
     const average = die / 2 + 1;
-    const conText = `${signed(con)} Constitution`;
+    // Hill Dwarves gain 1 extra hit point every level (Dwarven Toughness).
+    const toughness = (WASD.raceInfo(raw.identity.race) || {}).hpPerLevel || 0;
+    const conText = `${signed(con)} Constitution${toughness ? `, +${toughness} Dwarven Toughness` : ''}`;
 
     const before = WASD.character;
     const nextRaw = clone(raw);
@@ -65,13 +67,16 @@
     const classInfo = WASD.classData[cls];
     const newFeatures = classInfo && classInfo.features[newLevel];
 
-    /** HP gained for the chosen method, or null if not decided yet. Minimum 1 per level. */
+    /**
+     * HP gained for the chosen method, or null if not decided yet.
+     * Die + Con is floored at 1: a common table ruling, not SRD text.
+     */
     function gain(f) {
       let dieValue = null;
       if (f.hpMethod === 'average') dieValue = average;
       else if (f.hpMethod === 'roll' && f.hpRolled) dieValue = Number(f.hpRolled);
       else if (f.hpMethod === 'manual' && /^\d+$/.test(f.hpManual || '') && Number(f.hpManual) >= 1 && Number(f.hpManual) <= die) dieValue = Number(f.hpManual);
-      return dieValue === null ? null : Math.max(1, dieValue + con);
+      return dieValue === null ? null : Math.max(1, dieValue + con) + toughness;
     }
 
     const radio = (value, label, f) => `
@@ -106,7 +111,7 @@
             <p>${WASD.esc(cls)}s use a d${die} hit die. You add your Constitution modifier (${signed(con)}) to it.</p>
             <fieldset class="choices">
               <legend>How do you want to increase hit points?</legend>
-              ${radio('average', `Take the average: ${average} ${conText} = <strong>${Math.max(1, average + con)} HP</strong>`, f)}
+              ${radio('average', `Take the average: ${average} ${conText} = <strong>${Math.max(1, average + con) + toughness} HP</strong>`, f)}
               ${radio('roll', `Roll a d${die} in the app (${conText})`, f)}
               ${radio('manual', `Enter a roll from real dice (${conText})`, f)}
             </fieldset>

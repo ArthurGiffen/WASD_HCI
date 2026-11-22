@@ -7,6 +7,10 @@
  * same cards. It is a demo of the flow, not a full rules engine: background,
  * alignment, skill choices and spells use simple defaults. "Reset demo"
  * brings Kira back.
+ *
+ * Subraces: the SRD has exactly one per race (High Elf, Hill Dwarf, Lightfoot
+ * Halfling), so picking the race picks the subrace too (WASD.raceInfo).
+ * The Cleric's Divine Domain is likewise the SRD's only one, Life.
  */
 (function (WASD) {
   'use strict';
@@ -26,12 +30,15 @@
   /** Turn the wizard's answers into a raw character (same shape as sample-character.js). */
   function build(f) {
     const cls = WASD.classData[f.className];
-    const race = WASD.raceData[f.race];
+    const race = WASD.raceInfo(f.race);
     const base = baseScores(f);
     const abilityScores = {};
     ABILITIES.forEach((a) => { abilityScores[a.key] = base[a.key] + (race.bonuses[a.key] || 0); });
     const conMod = WASD.rules.abilityMod(abilityScores.con);
-    const hpMax = Math.max(1, cls.hitDie + conMod);
+    // Level 1: the full hit die + Con modifier. The floor of 1 is a common table
+    // ruling, not SRD text (it only matters with a negative Con modifier).
+    // Hill Dwarves add 1 more (Dwarven Toughness).
+    const hpMax = Math.max(1, cls.hitDie + conMod) + race.hpPerLevel;
     const s = cls.start;
 
     const items = [];
@@ -49,17 +56,17 @@
     return {
       schema: WASD.SCHEMA,
       identity: {
-        name: f.charName.trim(), race: f.race, className: f.className, subclass: '',
+        name: f.charName.trim(), race: race.name, className: f.className, subclass: cls.subclass || '',
         level: 1, background: 'Not chosen yet', alignment: 'Not chosen yet', experience: 0,
       },
       abilityScores,
-      proficiencies: { saves: cls.saves.slice(), skills: { ...s.skills, ...(race.skills || {}) } },
+      proficiencies: { saves: cls.saves.slice(), skills: { ...s.skills, ...race.skills } },
       combat: { hp: { current: hpMax, max: hpMax, temp: 0 }, hitDie: cls.hitDie, speed: race.speed, attacks },
       spellcasting: s.spellcasting ? JSON.parse(JSON.stringify(s.spellcasting)) : null,
       equipment: { items, coins: { cp: 0, sp: 0, gp: 10, pp: 0 } },
       features: [
         ...cls.features[1].map((x) => ({ ...x, source: `${f.className} 1` })),
-        ...race.features.map((x) => ({ ...x, source: f.race })),
+        ...race.features,
       ],
       feats: [],
       traits: { personality: notYet, ideal: notYet, bond: notYet, flaw: notYet },
@@ -73,7 +80,7 @@
       <div class="choice choice--card">
         <input type="radio" name="${name}" id="${name}-${o.value}" value="${o.value}"${current === o.value ? ' checked' : ''}
                aria-describedby="${name}-${o.value}-desc">
-        <label for="${name}-${o.value}"><strong>${esc(o.value)}</strong>
+        <label for="${name}-${o.value}"><strong>${esc(o.label || o.value)}</strong>
           <span class="choice__desc" id="${name}-${o.value}-desc">${esc(o.desc)}</span></label>
       </div>`).join('');
     return `<fieldset class="choices"><legend>${legend}</legend>${items}</fieldset>`;
@@ -103,10 +110,12 @@
     },
     {
       title: 'Race',
-      render: ({ fields: f }) => choices('race', 'Choose a race', Object.keys(WASD.raceData).map((k) => {
-        const r = WASD.raceData[k];
-        return { value: k, desc: `${r.blurb} Speed ${r.speed} ft.` };
-      }), f.race),
+      render: ({ fields: f }) => `
+        <p class="hint">Our rules data (SRD 5.1) has one subrace for each race, so it is chosen with the race. Humans have no subrace.</p>
+        ${choices('race', 'Choose a race', Object.keys(WASD.raceData).map((k) => {
+          const r = WASD.raceInfo(k);
+          return { value: k, label: r.name === k ? k : `${k} (${r.name})`, desc: `${r.blurb} Speed ${r.speed} ft.` };
+        }), f.race)}`,
       validate: ({ fields: f }) => (f.race ? null : { message: 'Choose a race.', field: 'race-Human' }),
     },
     {
@@ -114,7 +123,7 @@
       rerenderOnChange: true,
       render({ fields: f }) {
         const base = baseScores(f);
-        const race = WASD.raceData[f.race];
+        const race = WASD.raceInfo(f.race);
         const usedBy = {};
         ABILITIES.forEach((a) => { if (base[a.key]) usedBy[base[a.key]] = a.name; });
         const left = WASD.STANDARD_ARRAY.filter((n) => !usedBy[n]);
@@ -125,10 +134,12 @@
             return `<option value="${n}"${base[a.key] === n ? ' selected' : ''}>${n}${other}</option>`;
           }).join('');
           const bonus = race.bonuses[a.key] || 0;
-          let result = bonus ? `${signed(bonus)} ${esc(f.race)}` : '';
+          // Name where each bonus comes from, e.g. "+2 Elf +1 High Elf".
+          const from = (race.bonusParts[a.key] || []).map((p) => `${signed(p.value)} ${esc(p.from)}`).join(' ');
+          let result = from;
           if (base[a.key]) {
             const final = base[a.key] + bonus;
-            result = `${bonus ? `${base[a.key]} ${signed(bonus)} ${esc(f.race)} = ` : ''}<strong>${final}</strong> (modifier ${signed(WASD.rules.abilityMod(final))})`;
+            result = `${bonus ? `${base[a.key]} ${from} = ` : ''}<strong>${final}</strong> (modifier ${signed(WASD.rules.abilityMod(final))})`;
           }
           return `
             <div class="score-row">
@@ -177,7 +188,7 @@
         return `
           <dl class="pair-list review-list">
             <div><dt>Name</dt><dd>${esc(raw.identity.name)}</dd></div>
-            <div><dt>Race and class</dt><dd>${esc(f.race)} ${esc(f.className)}, level 1</dd></div>
+            <div><dt>Race and class</dt><dd>${esc(raw.identity.race)} ${esc(f.className)}${raw.identity.subclass ? ` (${esc(raw.identity.subclass)})` : ''}, level 1</dd></div>
             <div><dt>Hit points</dt><dd>${ch.combat.hp.max}</dd></div>
             <div><dt>Armor Class</dt><dd>${ch.combat.armorClass} (${esc(ch.combat.armorName)})</dd></div>
             <div><dt>Speed</dt><dd>${ch.combat.speed} ft</dd></div>
@@ -200,7 +211,7 @@
       onFinish({ fields: f }) {
         WASD.lastRoll = null;
         WASD.setCharacter(build(f));
-        WASD.announce(`Created ${f.charName.trim()}, a level 1 ${f.race} ${f.className}. HP ${WASD.raw.combat.hp.max}, AC ${WASD.character.combat.armorClass}.`);
+        WASD.announce(`Created ${f.charName.trim()}, a level 1 ${WASD.raw.identity.race} ${f.className}. HP ${WASD.raw.combat.hp.max}, AC ${WASD.character.combat.armorClass}.`);
       },
       onCancel() {
         WASD.announce('New character cancelled. Nothing changed.');

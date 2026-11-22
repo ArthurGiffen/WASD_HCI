@@ -6,7 +6,7 @@ How the WASD Character Sheet was checked, what was fixed, and what still needs a
 
 | Check | How | Result |
 |---|---|---|
-| Automated WCAG 2.2 AA + best practice | axe-core 4.10 on **165 states**: every card page, every tab, every dialog, every wizard step, error states, Bloodied and 0 HP, in all **5 themes** | **0 issues** at desktop width; at phone width only sticky-bar false positives (below) |
+| Automated WCAG 2.2 AA + best practice | axe-core 4.10 on **165 states**: every card page, every tab, every dialog, every wizard step, error states, half HP and 0 HP, in all **5 themes** | **0 issues** at desktop width; at phone width only sticky-bar false positives (below) |
 | Phone width and zoom | Same scan at 500px wide, and at 640px with Large text (like a laptop at 250% zoom); layout measured at 320, 360 and 640px | No sideways scrolling anywhere |
 | Theme contrast | Every color pair the UI uses, in every theme (text 4.5:1, borders, icons and focus ring 3:1) | All pass |
 | Focus not hidden by the sticky bar | Focused every control on the Combat page at phone width, normal and Large text | 13 of 13 fully visible |

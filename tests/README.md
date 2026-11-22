@@ -20,7 +20,7 @@ WASD tests using: /c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe
   ok    combat                                     55 checks
   ok    wizards                                    72 checks
   ...
-ALL PASSED (225 checks)
+ALL PASSED (258 checks)
 ```
 
 When something breaks, you see the failing checks and where the full log is:
@@ -45,10 +45,10 @@ The exit code is `0` only when everything passed, so the command can also be use
 
 | Suite | What it does | Group |
 |---|---|---|
-| `combat` | Hub, HP damage/heal/temp HP and its limits, bad input, attack rolls, equipment and tabs, coins, dice roller, Reset demo | quick |
+| `combat` | Hub, HP damage/heal/temp HP and its limits, bad input, attack rolls, critical hits, equipment and tabs, coins, dice roller, Reset demo | quick |
 | `wizards` | Level Up 4 → 5 (every changed number, missing level data, Cancel, Escape) and the New character build, step by step | quick |
 | `demo` | Runs `DEMO-SCRIPT.md` click by click and checks every number the script promises | quick |
-| `extra` | Rules math against hand-worked examples (Fighter Dwarf, Cleric Halfling, Rogue Elf, Human Wizard), Quick Page order, browser Back, a real page reload | quick |
+| `extra` | Rules math against hand-worked examples (Fighter Hill Dwarf, Cleric Lightfoot Halfling, Rogue High Elf, Human Wizard, Hill Dwarf Level Up), SRD cantrips and Life Domain, Quick Page order, browser Back, a real page reload | quick |
 | `saved-data` | Old-format, corrupt and unknown saved data must never break the app | quick |
 | `layout` | 320, 360 and 640px wide, with and without Large text: nothing may scroll sideways | quick |
 | `audit` | axe-core (WCAG 2.2 AA + best practice) plus our own checks (duplicate ids, heading order, focus inside dialogs) on 165 screen states: every card, tab, dialog and wizard step in all 5 themes | all |
@@ -113,6 +113,7 @@ When you fix a bug, first add a check that fails because of the bug, then fix it
   `BROWSER_BIN="/c/Program Files/Google/Chrome/Application/chrome.exe" bash tests/run.sh`
   (Mac: `BROWSER_BIN="/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"`).
 - **"FAIL no output"**: the page didn't finish in time. Try `BUDGET_SCALE=3`. If it still fails, open the generated page `tests/.out/<suite>.html` in your normal browser and look at the console (F12) for an error.
+- **Newer Edge on Windows (seen with version 158) prints nothing for `--dump-dom`.** The runner handles this automatically. Every test page also loads `tests/reporter.js`, which copies each result line into the browser console. When the page output is empty, the runner reads those lines from `tests/.out/<suite>-browser.log` instead. You don't need to do anything.
 - **Windows: "bash is not recognized"**: use the Git Bash app (Start menu), not PowerShell or Command Prompt.
 - **A failure you don't understand**: the full log is in `tests/.out/<suite>.log`. Each FAIL line says what was expected and what the app did.
 - **Phone-width accessibility scans:** at narrow widths axe-core reports whichever control happens to sit under the sticky bottom bar. That's a known false positive: axe doesn't scroll the page, and focusing any control scrolls it clear. That's why the `audit` suite runs at desktop width. The `layout` suite covers narrow widths.
@@ -124,6 +125,7 @@ When you fix a bug, first add a check that fails because of the bug, then fix it
 ```
 tests/
   run.sh                 the test runner (this is what you run)
+  reporter.js            copies results to the browser console (fallback for newer Edge)
   README.md              this file
   suites/                one script per suite (see the table above)
   vendor/axe.min.js      axe-core 4.10.2 accessibility engine (Deque Systems, MPL-2.0, unmodified)
