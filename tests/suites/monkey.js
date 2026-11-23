@@ -51,7 +51,10 @@ function checkInvariants(lastEl) {
   if (dup.length) fail('duplicate-ids', dup.join(','));
   const head = document.getElementById('header-stats').textContent.replace(/\s+/g, ' ');
   const c = WASD.character;
-  if (!head.includes('Level ' + c.identity.level) || !head.includes(String(c.combat.armorClass)) || !head.includes(c.combat.hp.current + '/')) fail('header-out-of-date', head);
+  // The header shows whichever three stats the player chose in Settings; each must match the character right now.
+  const want = WASD.settings.headerTiles(c).map((t) => t.value).join('|');
+  const got = [...document.querySelectorAll('#header-stats .header-stat dd')].map((x) => x.innerHTML).join('|');
+  if (want !== got) fail('header-out-of-date', head);
   const dlg = document.querySelector('dialog[open]');
   const a = document.activeElement;
   if (dlg && !dlg.contains(a)) fail('focus-outside-open-dialog', a && describe(a));

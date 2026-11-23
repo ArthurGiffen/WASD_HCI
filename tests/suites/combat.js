@@ -70,7 +70,7 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     // Shortsword 1d6+3 -> crit 2d6+3 = 1+1+3 = 5
     ok(WASD.lastRoll.lines[0] === '2d6 piercing: rolled 1, 1, +3 = 5' && WASD.lastRoll.total === '5 piercing', 'crit shortsword 2d6+3 = 5: ' + WASD.lastRoll.lines[0]);
     ok(/critical hit/.test(WASD.lastRoll.title) && /dice rolled twice, bonus added once/.test(WASD.lastRoll.note), 'crit damage labelled: ' + WASD.lastRoll.title);
-    ok(/Shortsword critical damage: 5 piercing/.test(status()), 'announce crit damage: ' + status());
+    ok(/^Shortsword critical damage: rolled 1 and 1, \+3, total 5 piercing\.$/.test(status()), 'announce crit damage, dice and bonus apart: ' + status());
     await ones(async () => { click('#roll-dmg-sneak'); await tick(120); });
     ok(WASD.lastRoll.lines[0].startsWith('4d6 ') && /= 4$/.test(WASD.lastRoll.lines[0]), 'crit Sneak Attack 2d6 -> 4d6 = 4: ' + WASD.lastRoll.lines[0]);
     WASD.dice.roll = (n) => Array(n).fill(10);
@@ -78,6 +78,7 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     ok($('#crit-toggle').getAttribute('aria-pressed') === 'false', 'a normal roll to hit turns Critical hit off');
     await ones(async () => { click('#roll-dmg-shortsword'); await tick(120); });
     ok(WASD.lastRoll.lines[0] === '1d6 piercing: rolled 1, +3 = 4' && !/critical/.test(WASD.lastRoll.title), 'normal damage 1d6+3 = 4: ' + WASD.lastRoll.lines[0]);
+    ok(/^Shortsword damage: rolled 1, \+3, total 4 piercing\.$/.test(status()), 'damage announced like to-hit (rolled, bonus, total): ' + status());
     $('#crit-toggle').focus(); click('#crit-toggle'); await tick(120);
     ok($('#crit-toggle').getAttribute('aria-pressed') === 'true' && /Critical hit on/.test(status()), 'toggle on by hand, announced: ' + status());
     ok(document.activeElement.id === 'crit-toggle', 'focus stays on Critical hit');
@@ -89,12 +90,15 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     ok(document.querySelectorAll('#card-list li').length === 0, 'hub list emptied on card page');
     click('#equip-ring'); await tick(120);
     ok(WASD.character.combat.armorClass === 16, 'ring equipped -> AC 16');
+    ok($('#equip-ring').textContent.trim() === 'Equipped' && $('#equip-ring').getAttribute('aria-pressed') === 'true', 'equipped button reads "Equipped": ' + $('#equip-ring').textContent.trim());
     ok(/Ring of Protection equipped.*Armor Class 16/.test(status()), 'announce: ' + status());
     const save = (k) => WASD.character.abilities.find((a) => a.key === k).save;
     ok(save('dex') === 6 && save('str') === 1, `2014 ring: +1 to every saving throw (Dex +6, Str +1; got ${save('dex')}, ${save('str')})`);
     ok(/requires attunement/.test($('#equip-panel-items').textContent), 'ring shows "requires attunement"');
     ok(document.activeElement.id === 'equip-ring', 'focus kept on equip button');
     click('#equip-studded'); await tick(120);
+    ok($('#equip-studded').textContent.trim() === 'Equip' && $('#equip-studded').getAttribute('aria-pressed') === 'false', 'unequipped button reads "Equip": ' + $('#equip-studded').textContent.trim());
+    ok($('#equip-studded').getAttribute('aria-label') === 'Equipped: Studded leather', 'screen-reader name stays the same');
     ok(WASD.character.combat.armorClass === 14, 'armor off, ring on -> 14 (got ' + WASD.character.combat.armorClass + ')');
     click('#equip-shortsword'); await tick(120);
     ok(!WASD.character.combat.attacks.some((a) => a.id === 'shortsword'), 'unequipped sword hides its attack');
@@ -110,6 +114,23 @@ const setVal = (sel, v) => { $(sel).value = v; $(sel).dispatchEvent(new Event('i
     ok(document.activeElement === tabs[2], 'End goes to last tab');
     click('#use-arrows'); await tick(120);
     ok(WASD.raw.equipment.items.find((i) => i.id === 'arrows').qty === 19, 'use arrow -> 19');
+    // Arrows count one at a time, and the screen always shows the saved number.
+    const arrows = () => WASD.raw.equipment.items.find((i) => i.id === 'arrows').qty;
+    const shown = () => ($('#use-arrows').closest('li').querySelector('.tag') || {}).textContent;
+    for (let i = 0; i < 3; i++) { click('#use-arrows'); await tick(80); }
+    ok(arrows() === 16 && shown() === '×16', `three more uses -> 16 (data ${arrows()}, screen ${shown()})`);
+    click('#add-arrows'); await tick(80);
+    ok(arrows() === 17 && shown() === '×17' && /Arrows: added one\. 17 now/.test(status()), `add one -> 17 (data ${arrows()}, screen ${shown()}): ${status()}`);
+    click('#use-arrows'); await tick(80);
+    ok(/Arrows: used one\. 16 left/.test(status()), 'announce use: ' + status());
+    // Down to the last arrow: never a negative count, and a clear message at 0.
+    WASD.updateCharacter((r) => { r.equipment.items.find((i) => i.id === 'arrows').qty = 1; }); await tick(80);
+    click('#use-arrows'); await tick(80);
+    ok(arrows() === 0 && shown() === '×0' && /Arrows: used one\. 0 left/.test(status()), `last arrow -> 0: ${status()}`);
+    click('#use-arrows'); await tick(80);
+    ok(arrows() === 0 && /No Arrows left/.test(status()), 'at 0: ' + status());
+    click('#add-arrows'); await tick(80);
+    WASD.updateCharacter((r) => { r.equipment.items.find((i) => i.id === 'arrows').qty = 19; }); await tick(80);
     ok($('[role=tab][aria-selected=true]').textContent.startsWith('Currency'), 'stays on Currency tab after redraw');
     click('#coin-plus-gp'); await tick(100);
     ok(WASD.raw.equipment.coins.gp === 16, 'gold +1');

@@ -1,6 +1,6 @@
 # Accessibility Pass (2026-11-20)
 
-How the WASD Character Sheet was checked, what was fixed, and what still needs a human test.
+How Hero's Ledger was checked, what was fixed, and what still needs a human test.
 
 ## How it was tested
 

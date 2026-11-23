@@ -40,7 +40,7 @@
       document.getElementById('card-list').innerHTML = '';
       hubView.hidden = true;
       cardView.hidden = false;
-      document.title = `${card.title} · ${name} · WASD Character Sheet`;
+      document.title = `${card.title} · ${name} · Hero's Ledger`;
       if (!isFirstRender) cardTitle.focus();
       lastCardId = card.id;
     } else {
@@ -49,7 +49,7 @@
       cardBody.innerHTML = '';
       cardView.hidden = true;
       hubView.hidden = false;
-      document.title = `${name} · WASD Character Sheet`;
+      document.title = `${name} · Hero's Ledger`;
       if (!isFirstRender) {
         if (lastCardId) WASD.hub.focusCard(lastCardId);
         else hubTitle.focus();

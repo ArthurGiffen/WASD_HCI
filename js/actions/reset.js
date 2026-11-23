@@ -12,12 +12,13 @@
     const ok = await WASD.confirm({
       opener: button,
       title: 'Reset demo?',
-      message: 'This restores Kira to her original level 4 character: full starting HP, original gear, and the default card order. Any changes you made will be lost.',
+      message: 'This restores Kira to her original level 4 character: full starting HP, original gear, the default card order and header stats. Any changes you made will be lost.',
       confirmLabel: 'Reset demo',
     });
     if (!ok) return; // focus already returned to the Reset demo button
 
     WASD.lastRoll = null;
+    WASD.settings.resetHeaderStats(); // header back to Level, HP, AC
     WASD.resetCharacter();   // back to the sample character + redraw
     WASD.hub.resetOrder();
     const ch = WASD.character;

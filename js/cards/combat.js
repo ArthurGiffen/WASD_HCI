@@ -154,7 +154,11 @@
       note: notes.join(' '),
     };
     WASD.refresh();
-    WASD.announce(`${a.name} ${crit ? 'critical ' : ''}damage: ${parts.map((p) => `${p.total} ${p.type}`).join(', ')}.`);
+    // Same shape as the to-hit message: the dice first, then the bonus, then the total.
+    // e.g. "Shortsword damage: rolled 6, +3, total 9 piercing."
+    const diceList = (r) => (r.length === 1 ? `${r[0]}` : `${r.slice(0, -1).join(', ')} and ${r[r.length - 1]}`);
+    const said = parts.map((p) => `rolled ${diceList(p.rolls)}${p.bonus ? `, ${signed(p.bonus)}` : ''}, total ${p.total} ${p.type}`);
+    WASD.announce(`${a.name} ${crit ? 'critical ' : ''}damage: ${said.join('; ')}.`);
   };
 
   WASD.actions['crit-toggle'] = () => {

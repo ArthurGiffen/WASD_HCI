@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>WASD Character Sheet</title>
+  <title>Hero's Ledger</title>
   <link rel="stylesheet" href="css/base.css">
   <link rel="stylesheet" href="css/layout.css">
   <link rel="stylesheet" href="css/cards.css">
@@ -31,9 +31,9 @@
   <!-- ============ HEADER ZONE (owner: Person A) ============ -->
   <header class="zone-header">
     <div class="brand">
-      <span class="brand__mark" aria-hidden="true">W</span>
+      <span class="brand__mark" aria-hidden="true">H</span>
       <div class="brand__text">
-        <p class="app-name">WASD Character Sheet</p>
+        <p class="app-name">Hero's Ledger</p>
         <p class="char-name" id="char-name">Loading…</p>
       </div>
       <button type="button" id="settings-btn" class="btn btn--icon" aria-label="Settings" title="Settings" aria-haspopup="dialog"><svg class="icon" viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></svg></button>
@@ -166,6 +166,12 @@
         <label for="large-text"><strong>Large text</strong>
           <span class="choice__desc">Makes all text and controls 25% bigger.</span></label>
       </div>
+      <fieldset class="choices">
+        <legend>Header stats</legend>
+        <p class="hint">Choose the three numbers shown at the top of every screen, in order.</p>
+        <div id="header-stat-pickers"></div>
+        <button type="button" class="btn btn--small" id="header-stats-default">Use Level, Hit points, Armor class</button>
+      </fieldset>
       <p id="settings-live" class="visually-hidden" role="status"></p>
       <p class="hint">Changes apply right away and are saved in this browser.</p>
       <div class="modal__buttons">

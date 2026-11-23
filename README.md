@@ -1,4 +1,4 @@
-# WASD Character Sheet
+# Hero's Ledger
 
 Team WASD (David Valle, Arthur Giffen, Sujal Sharma). HCI semester project, TAMU-CC. Due **December 2, 2026**.
 
@@ -52,7 +52,7 @@ js/
   hub.js                     Hub screen: renders cards, collapse/expand, Edit layout (Up/Down)
   router.js                  #/ = Hub, #/card/<id> = Card view; moves focus on navigation
   quick-page.js              Quick Page overlay: open/close, keys 1–7, focus in/out, Escape
-  settings.js                Settings dialog (gear in the header): theme and Large text
+  settings.js                Settings dialog (sliders button in the header): theme, Large text, header stats
   actions/roll.js            Roll button: dice roller dialog
   actions/reset.js           Reset demo button (confirm, then restore Kira at level 4)
   actions/level-up.js        Level Up wizard: HP, proficiency changes, new features, review
@@ -168,7 +168,7 @@ This work includes material taken from the System Reference Document 5.1 ("SRD 5
 and available at https://dnd.wizards.com/resources/systems-reference-document. The SRD 5.1 is licensed under the
 Creative Commons Attribution 4.0 International License available at https://creativecommons.org/licenses/by/4.0/legalcode.
 
-WASD Character Sheet is a student project. It is not affiliated with or endorsed by Wizards of the Coast.
+Hero's Ledger is a student project. It is not affiliated with or endorsed by Wizards of the Coast.
 
 ## Open team decisions
 

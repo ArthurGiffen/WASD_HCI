@@ -54,16 +54,20 @@
     WASD.announce(`${coin.name} ${WASD.raw.equipment.coins[key]}.`);
   }
 
+  // Announce the count read AFTER the change: the item object can be the one
+  // updateCharacter just changed, so "qty - 1" here would count twice.
   WASD.actions['item-use'] = (el) => {
-    const item = findItem(WASD.raw, el.dataset.item);
+    const id = el.dataset.item;
+    const item = findItem(WASD.raw, id);
     if (item.qty <= 0) { WASD.announce(`No ${item.name} left.`); return; }
-    WASD.updateCharacter((raw) => { findItem(raw, el.dataset.item).qty -= 1; });
-    WASD.announce(`Used one ${item.name}. ${item.qty - 1} left.`);
+    WASD.updateCharacter((raw) => { findItem(raw, id).qty -= 1; });
+    WASD.announce(`${item.name}: used one. ${findItem(WASD.raw, id).qty} left.`);
   };
   WASD.actions['item-add'] = (el) => {
-    const item = findItem(WASD.raw, el.dataset.item);
-    WASD.updateCharacter((raw) => { findItem(raw, el.dataset.item).qty += 1; });
-    WASD.announce(`Added one ${item.name}. ${item.qty + 1} now.`);
+    const id = el.dataset.item;
+    WASD.updateCharacter((raw) => { findItem(raw, id).qty += 1; });
+    const item = findItem(WASD.raw, id);
+    WASD.announce(`${item.name}: added one. ${item.qty} now.`);
   };
 
   function itemRow(item) {
@@ -71,10 +75,12 @@
     const details = (item.modifiers || []).map(WASD.rules.formatModifier);
     if (item.attunement) details.push('requires attunement');
     const note = details.length ? ` <span class="muted">${esc(details.join(', '))}</span>` : '';
+    // Visible text says what you'll do ("Equip") or what is true ("Equipped", with a CSS check mark).
+    // The screen-reader name stays the same and aria-pressed carries the state, as a toggle button should.
     const btn = EQUIPPABLE.includes(item.kind) ? `
       <button type="button" class="btn btn--small btn--toggle" id="equip-${item.id}" data-action="equip-toggle"
               data-item="${item.id}" aria-pressed="${!!item.equipped}" aria-label="Equipped: ${esc(item.name)}">
-        Equipped</button>` : '';
+        ${item.equipped ? 'Equipped' : 'Equip'}</button>` : '';
     const qty = item.qty > 1 ? ` <span class="tag">×${item.qty}</span>` : '';
     return `<li class="item-row"><span>${esc(item.name)}${qty}${note}</span>${btn}</li>`;
   }

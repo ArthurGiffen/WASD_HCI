@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-Instructions for AI coding sessions on the WASD Character Sheet. Read `PLAN.md` for the full plan, accessibility rules and working style.
+Instructions for AI coding sessions on Hero's Ledger. Read `PLAN.md` for the full plan, accessibility rules and working style.
 
 ## Rules edition: D&D 5e 2014 only
 

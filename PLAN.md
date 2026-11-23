@@ -1,4 +1,4 @@
-# WASD Character Sheet: Build Plan
+# Hero's Ledger: Build Plan
 
 Team WASD, HCI course, TAMU-CC. Final submission **Dec 2, 2026**. Live demo **Sunday (Monday at the latest)**.
 Goal for the demo: a working walkthrough of Combat, Level Up, guided build and Reset. It is a prototype, not a full rules engine.

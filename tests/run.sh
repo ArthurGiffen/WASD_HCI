@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# WASD Character Sheet: automated tests. See tests/README.md.
+# Hero's Ledger: automated tests. See tests/README.md.
 #
 #   bash tests/run.sh            quick suites (about 1 minute)
 #   bash tests/run.sh all        everything, including the accessibility audit and random testing (5+ minutes)

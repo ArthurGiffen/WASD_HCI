@@ -9,17 +9,12 @@
   // Loads the saved character from localStorage, or the sample (Kira) the first time.
   WASD.loadCharacter();
 
-  /** Header zone: character name plus Level / HP / AC tiles. */
+  /** Header zone: character name plus three stat tiles (Level, HP, AC unless changed in Settings). */
   WASD.renderHeader = function () {
     const ch = WASD.character;
-    const id = ch.identity;
-    const hp = ch.combat.hp;
-    const { esc } = WASD;
-    document.getElementById('char-name').textContent = id.name;
-    document.getElementById('header-stats').innerHTML = `
-      <div class="header-stat"><dt>${esc(id.race)} ${esc(id.className)}</dt><dd>Level ${id.level}</dd></div>
-      <div class="header-stat"><dt>Hit points</dt><dd>${hp.current}<span aria-hidden="true">/</span><span class="visually-hidden"> of </span>${hp.max}</dd></div>
-      <div class="header-stat"><dt>Armor class</dt><dd>${ch.combat.armorClass}</dd></div>`;
+    document.getElementById('char-name').textContent = ch.identity.name;
+    document.getElementById('header-stats').innerHTML = WASD.settings.headerTiles(ch)
+      .map((t) => `<div class="header-stat"><dt>${WASD.esc(t.label)}</dt><dd>${t.value}</dd></div>`).join('');
   };
 
   /** Called by WASD.updateCharacter() after every change. */

@@ -98,10 +98,26 @@ const phase = sessionStorage.getItem('phase') || 'one';
       const allText = JSON.stringify([WASD.classData, WASD.raceData, WASD.sampleCharacter]);
       ok(!words2024.test(allText), 'no 2024-only terms in the data: ' + (allText.match(words2024) || [''])[0]);
 
+      // --- Header stats: players pick which three numbers the header shows ---
+      const tiles = () => [...document.querySelectorAll('#header-stats .header-stat')].map((t) => `${t.querySelector('dt').textContent} ${t.querySelector('dd').textContent}`.replace(/\s+/g, ' ').trim());
+      ok(tiles().join(' | ') === 'Human Rogue Level 4 | Hit points 27/ of 31 | Armor class 15', 'default header: ' + tiles().join(' | '));
+      await click('#settings-btn');
+      ok(document.querySelectorAll('#header-stat-pickers select').length === 3 && $('label[for="header-stat-1"]').textContent === 'Second stat', '3 labelled header pickers');
+      const pick = $('#header-stat-1'); pick.value = 'initiative'; pick.dispatchEvent(new Event('change', { bubbles: true })); await tick(120);
+      ok(tiles()[1] === 'Initiative +3', 'second tile is now Initiative +3: ' + tiles()[1]);
+      ok(/Second stat in the header is now Initiative/.test($('#settings-live').textContent), 'change announced: ' + $('#settings-live').textContent);
+      const saved = () => (JSON.parse(localStorage.getItem('wasd.settings.v1')) || {}).headerStats || [];
+      ok(saved().join() === 'level,initiative,ac', 'choice saved: ' + saved().join());
+      await click('#theme-dark');
+      ok(saved().join() === 'level,initiative,ac', 'changing the theme keeps the header choice');
+      await click('#header-stats-default');
+      ok(tiles()[1].startsWith('Hit points') && $('#header-stat-1').value === 'hp', 'default button restores Level, HP, AC');
+      await click('#theme-parchment'); await click('#close-settings');
+
       // --- Persistence: change things, then really reload the page ---
       WASD.updateCharacter((r) => { r.combat.hp.current = 9; });
       document.documentElement.setAttribute('data-theme', 'forest');
-      localStorage.setItem('wasd.settings.v1', JSON.stringify({ theme: 'forest', largeText: true }));
+      localStorage.setItem('wasd.settings.v1', JSON.stringify({ theme: 'forest', largeText: true, headerStats: ['gold', 'passive', 'spelldc'] }));
       ok(errors.length === 0, 'no JS errors in phase one: ' + errors.join(' | '));
       sessionStorage.setItem('phase', 'two');
       sessionStorage.setItem('results', out.join('\n'));
@@ -113,6 +129,11 @@ const phase = sessionStorage.getItem('phase') || 'one';
     ok(WASD.raw.combat.hp.current === 9, 'HP 9 survived reload');
     ok(WASD.hub.getOrder()[0] === 'equipment', 'card order survived reload');
     ok(document.documentElement.dataset.theme === 'forest' && document.documentElement.dataset.text === 'large', 'theme + large text survived reload');
+    const tiles2 = () => [...document.querySelectorAll('#header-stats .header-stat')].map((t) => `${t.querySelector('dt').textContent} ${t.querySelector('dd').textContent}`.replace(/\s+/g, ' ').trim());
+    // Kira: 15 gp, passive Perception 13 (10 + Wis +1 + proficiency 2), no spellcasting.
+    ok(tiles2().join(' | ') === 'Gold 15 gp | Passive Perception 13 | Spell save DC None', 'header choice survived reload: ' + tiles2().join(' | '));
+    $('#reset-demo').click(); await tick(100); $('#confirm-yes').click(); await tick(200);
+    ok(tiles2()[0] === 'Human Rogue Level 4' && tiles2()[2] === 'Armor class 15', 'Reset demo restores Level, HP, AC: ' + tiles2().join(' | '));
     ok(errors.length === 0, 'no JS errors after reload: ' + errors.join(' | '));
     WASD.resetCharacter(); WASD.hub.resetOrder(); localStorage.removeItem('wasd.settings.v1');
   } catch (e) { out.push('EXCEPTION ' + e.stack); }

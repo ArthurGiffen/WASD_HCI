@@ -1,12 +1,12 @@
 # Live Demo Script (about 5 minutes)
 
-WASD Character Sheet. Kira, Human Rogue, level 4.
+Hero's Ledger. Kira, Human Rogue, level 4.
 Every number below is what the screen should show if you start from **Reset demo**.
 
 ## Before you start (1 minute, off stage)
 
 - [ ] Open `index.html` in Chrome or Edge. Browser zoom **100%**.
-- [ ] Settings (gear, top right): theme **Parchment**, Large text **off**.
+- [ ] Settings (sliders button, top right): theme **Parchment**, Large text **off**.
 - [ ] Hub → **Reset demo** → **Reset demo**. The header should read **Level 4 · 27/31 · AC 15**.
 - [ ] Close other tabs. Turn off notifications.
 - [ ] Optional: start NVDA (Insert+Q quits) if you want to show announcements out loud.
@@ -19,7 +19,7 @@ If anything goes wrong mid-demo, **Reset demo** puts everything back. Refreshing
 
 | Do | Say |
 |---|---|
-| Point at the header tiles. | "The header always shows the three things players check most: level, hit points, armor class." |
+| Point at the header tiles. | "The header shows the three things players check most: level, hit points, armor class. Players asked to choose their own, so in Settings you can swap any of them for initiative, speed, passive Perception, spell save DC and more." |
 | Point at the open Combat card's summary line. | "Cards are ordered by how often you use them. Combat is first and open. Initiative, speed and proficiency are on the main page. That came from our usability testing." |
 | Click **Edit layout**, click **↓ Down** on Combat once, then **Reset order**, then **Edit layout** again. | "Players can reorder cards. Up and Down buttons work with a keyboard or a switch, not just drag. Card order is also the screen-reader reading order." |
 
@@ -30,7 +30,7 @@ If anything goes wrong mid-demo, **Reset demo** puts everything back. Refreshing
 | In **Amount**, type `5`, press **Damage**. | HP **22 / 31**. Status bar: "Kira took 5 damage. HP 22 of 31." | "Every change is announced to screen readers and shown in the status bar." |
 | Type `10`, press **Damage**. | HP **12 / 31** and a **⚠ Half HP or less** label. | "Low HP isn't shown by color alone. There's an icon and a word." |
 | Type `5`, press **Heal**. | HP **17 / 31**, the label disappears. | |
-| On Shortsword, press **Roll to hit**, then **Roll damage**. | "Last roll" shows the d20 + 5. Damage shows **piercing** separately. | "To-hit and damage are separate rolls, and damage keeps its type. Testers told us combining them hid what caused the damage, which matters for resistances." |
+| On Shortsword, press **Roll to hit**, then **Roll damage**. | "Last roll" shows the d20 + 5. Damage shows the die and the +3 apart, e.g. status bar "Shortsword damage: rolled 4, +3, total 7 piercing." | "To-hit and damage are separate rolls, and damage keeps its type. Testers told us combining them hid what caused the damage, which matters for resistances." |
 
 Keyboard version: Tab to Amount, type, Tab to Damage, press Enter. Focus stays on the button, so you can press Enter again.
 
@@ -41,7 +41,7 @@ If **Roll to hit** shows a natural 20, the **Critical hit** button turns on (✓
 | Do | Expect | Say |
 |---|---|---|
 | Press **Quick Page** (bottom bar), then press the **5** key. | Equipment page opens. | "Quick Page reaches any card in two actions. On a laptop the number keys jump straight there." |
-| Press **Equipped** on **Studded leather**. | Header AC **15 → 13**. Button loses its ✓. | "Equipping changes the real numbers. Unequip your armor and your AC drops." |
+| Press **✓ Equipped** on **Studded leather**. | Header AC **15 → 13**. The button now reads **Equip**, without the ✓. | "Equipping changes the real numbers. Unequip your armor and your AC drops." |
 | Press it again. | AC back to **15**. | |
 | Open the **Modifiers** tab (or press → on the tab strip). | Ring of Protection +1 AC, +1 saving throws, not equipped. | "Item bonuses live here, and only count while equipped." |
 | Press **← Back to hub**. | | |
