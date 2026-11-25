@@ -55,7 +55,7 @@
     const con = WASD.rules.abilityMod(WASD.character.abilities.find((a) => a.key === 'con').score);
     const average = die / 2 + 1;
     // Hill Dwarves gain 1 extra hit point every level (Dwarven Toughness).
-    const toughness = (WASD.raceInfo(raw.identity.race) || {}).hpPerLevel || 0;
+    const toughness = (WASD.raceInfo(raw.identity.race, { subrace: raw.identity.subrace }) || {}).hpPerLevel || 0;
     const conText = `${signed(con)} Constitution${toughness ? `, +${toughness} Dwarven Toughness` : ''}`;
 
     const before = WASD.character;
@@ -193,7 +193,10 @@
         WASD.updateCharacter((r) => {
           r.identity.level = newLevel;
           r.combat.hp.max += g;
+          const wasDown = r.combat.hp.current === 0;
           r.combat.hp.current = Math.min(r.combat.hp.max, r.combat.hp.current + g);
+          // Gaining hit points at 0 HP ends dying, like any healing: death saves reset.
+          if (wasDown && r.combat.hp.current > 0) r.combat.deathSaves = { successes: 0, failures: 0 };
           (newFeatures || []).forEach((feat) => {
             r.features.push({ name: feat.name, source: `${cls} ${newLevel}`, summary: feat.summary });
           });

@@ -12,7 +12,7 @@ Everything in the app must reflect 2014: rules, numbers, feature names and terms
 - No 2024-only rules: origin feats, Weapon Mastery, Cunning Strike, Heroic Inspiration, Bloodied as a rules condition, the Utilize action, "Hit Point Dice", and so on.
 - Class features come at their **2014 levels**. For example, Rogue level 5 is Uncanny Dodge and Sneak Attack 3d6 only, and the Cleric picks a Divine Domain at level 1.
 - Racial traits, spell effects, and hit point and AC math follow the 2014 text.
-- The rules reference is the **SRD 5.1** (attribution in `README.md`). It has one subrace per race (High Elf, Hill Dwarf, Lightfoot Halfling), one Cleric domain (Life) and one background (Acolyte). Anything outside the SRD needs the user's Player's Handbook, so ask.
+- The rules reference is the **SRD 5.1** (attribution in `README.md`). It has 9 races (all in `js/data/classes.js`), with one subrace each for Elf, Dwarf, Halfling and Gnome (High Elf, Hill Dwarf, Lightfoot Halfling, Rock Gnome), one Cleric domain (Life) and one background (Acolyte). Race and subrace are separate fields. Anything outside the SRD needs the user's Player's Handbook, so ask.
 - If a stat, rule or feature isn't in the repo's data (`js/data/`), **ask instead of inventing it**.
   If you aren't sure whether something is 2014 or 2024, say so rather than guessing.
 

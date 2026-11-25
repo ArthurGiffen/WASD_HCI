@@ -40,6 +40,7 @@ Primary users are sighted players. The sheet must also be fully usable by blind 
 | ✅ | Task 2 Level Up (2014 rules) and Task 3 guided build, on a shared wizard dialog |
 | ✅ | Themes (5) + Large text, accessibility pass (`ACCESSIBILITY.md`), demo script (`DEMO-SCRIPT.md`) |
 | ✅ | `js/data/classes.js` checked against SRD 5.1 (2026-11-21): third cantrip, Life Domain, Dwarf traits, SRD subraces, 2014 critical hits |
+| ✅ | After the demo (2026-11-25): HP undo, death saves, rests, spell slots, conditions, export/import, all SRD races with separate subraces, Full width cards |
 | ⬜ | Team: one real screen-reader run; rehearse `DEMO-SCRIPT.md`; retake screenshot 04 (it still shows "Elf Wizard") |
 | | Nothing is committed yet. |
 

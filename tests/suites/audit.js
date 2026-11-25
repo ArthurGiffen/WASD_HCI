@@ -76,6 +76,18 @@ const THEMES = ['parchment', 'dark', 'contrast', 'forest', 'arcane'];
       const amt = $('#hp-amount'); amt.value = 'x'; amt.dispatchEvent(new Event('input', { bubbles: true }));
       await click('#hp-heal');
       await audit(S('combat-down-error-lastroll'));
+      // Death saves in progress, conditions and exhaustion active, Undo available
+      await click('#death-failure'); await click('#cond-poisoned'); await click('#cond-prone');
+      const ex = $('#exhaustion'); ex.value = '2'; ex.dispatchEvent(new Event('input', { bubbles: true })); await tick();
+      await audit(S('combat-death-saves-conditions'));
+      // Hub with Combat full width (two columns)
+      WASD.resetCharacter(); WASD.hub.resetOrder(); location.hash = '#/'; await tick(150); await click('#wide-combat');
+      await audit(S('hub-combat-full-width'));
+      WASD.hub.resetOrder(); await tick();
+      // Spell slots on a caster, and an import error on Identity
+      WASD.setCharacter(WASD.newCharacter.build({ charName: 'Mira', className: 'Wizard', race: 'Elf', 'score-str': '8', 'score-dex': '13', 'score-con': '14', 'score-int': '15', 'score-wis': '12', 'score-cha': '10' }));
+      location.hash = '#/card/spellcasting'; await tick(150); await click('#slot-use-1'); await audit(S('spell-slots-used'));
+      WASD.resetCharacter(); await tick();
       // Every other card page and tab
       for (const id of ['abilities', 'skills', 'spellcasting', 'identity']) { location.hash = '#/card/' + id; await tick(120); await audit(S(id)); }
       location.hash = '#/card/skills'; await tick(120); await click('#skills-filter'); await audit(S('skills-filtered'));
@@ -106,7 +118,10 @@ const THEMES = ['parchment', 'dark', 'contrast', 'forest', 'arcane'];
       const nm = $('#char-name-input'); nm.value = 'Mira'; nm.dispatchEvent(new Event('input', { bubbles: true }));
       await click('#wizard-next'); await audit(S('build-2'));
       await click('#className-Cleric'); await click('#wizard-next'); await audit(S('build-3'));
-      await click('#race-Dwarf'); await click('#wizard-next'); await audit(S('build-4'));
+      await click('#race-Dragonborn'); await click('#wizard-next'); await audit(S('build-3-dragonborn-error'));
+      await click('#race-Half-Elf'); await audit(S('build-3-half-elf-choices'));
+      await click('#race-Dwarf'); await audit(S('build-3-dwarf-subrace'));
+      await click('#wizard-next'); await audit(S('build-4'));
       await click('#suggest-scores'); await audit(S('build-4-filled'));
       await click('#wizard-next'); await audit(S('build-5'));
       await click('#wizard-cancel');

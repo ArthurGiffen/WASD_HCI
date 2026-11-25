@@ -1,6 +1,7 @@
 /*
  * hub.js: the Hub screen. Renders every card in the player's chosen order,
- * handles collapse/expand, and "Edit layout" (move up / move down).
+ * handles collapse/expand, "Edit layout" (move up / move down) and "Full width"
+ * (an open card can take the whole row, e.g. Combat in two columns).
  * OWNER: Person A
  *
  * Card order is DOM order, so what sighted players see is exactly what screen
@@ -12,6 +13,7 @@
   // Default order = how often players use each card during live play.
   const DEFAULT_ORDER = ['combat', 'abilities', 'skills', 'spellcasting', 'equipment', 'features', 'identity'];
   const STORAGE_KEY = 'wasd.cardOrder.v1';
+  const WIDE_KEY = 'wasd.cardWide.v1';
 
   const listEl = document.getElementById('card-list');
   const editBtn = document.getElementById('edit-layout');
@@ -21,6 +23,18 @@
   let editing = false;
   const DEFAULT_OPEN = ['combat']; // Combat starts open: the stats players look up most are visible at once
   const expanded = new Set(DEFAULT_OPEN); // ids of cards that are currently open
+  const wide = loadWide(); // ids of cards shown full width
+
+  function loadWide() {
+    try {
+      const saved = JSON.parse(localStorage.getItem(WIDE_KEY));
+      if (Array.isArray(saved)) return new Set(saved.filter((id) => DEFAULT_ORDER.includes(id)));
+    } catch (e) { /* storage blocked or bad JSON: none wide */ }
+    return new Set();
+  }
+  function saveWide() {
+    try { localStorage.setItem(WIDE_KEY, JSON.stringify([...wide])); } catch (e) { /* ignore */ }
+  }
 
   function loadOrder() {
     try {
@@ -47,9 +61,10 @@
     const isFirst = index === 0;
     const isLast = index === order.length - 1;
     const title = esc(card.title);
+    const isWide = wide.has(id);
 
     return `
-      <li class="card" data-card-id="${id}">
+      <li class="card${isWide ? ' card--wide' : ''}" data-card-id="${id}">
         <section aria-labelledby="card-${id}-title">
           <h2 class="card__heading">
             <button type="button" class="card__toggle" id="card-${id}-toggle"
@@ -69,7 +84,9 @@
           </div>
           <div class="card__body" id="card-${id}-body"${isOpen ? '' : ' hidden'}>
             ${card.render(ch, { view: 'hub', sub: 'h3' })}
-            <p class="card__open"><a href="#/card/${id}">Open ${title} page</a></p>
+            <p class="card__open"><a href="#/card/${id}">Open ${title} page</a>
+              <button type="button" class="btn btn--small" id="wide-${id}" data-wide="${id}" aria-pressed="${isWide}"
+                      aria-label="Full width: ${title}">Full width</button></p>
           </div>
         </section>
       </li>`;
@@ -101,6 +118,15 @@
     WASD.announce(`${WASD.getCard(id).title} moved to position ${to + 1} of ${order.length}.`);
   }
 
+  /** Show an open card across the whole row (or back to one column). */
+  function toggleWide(id) {
+    if (wide.has(id)) wide.delete(id); else wide.add(id);
+    saveWide();
+    render();
+    document.getElementById(`wide-${id}`).focus();
+    WASD.announce(`${WASD.getCard(id).title} card ${wide.has(id) ? 'is now full width' : 'is back to normal width'}.`);
+  }
+
   function setEditing(on) {
     editing = on;
     editBtn.setAttribute('aria-pressed', String(on));
@@ -113,6 +139,11 @@
     const toggleBtn = event.target.closest('.card__toggle');
     if (toggleBtn) {
       toggle(toggleBtn.closest('.card').dataset.cardId);
+      return;
+    }
+    const wideBtn = event.target.closest('[data-wide]');
+    if (wideBtn) {
+      toggleWide(wideBtn.dataset.wide);
       return;
     }
     const moveBtn = event.target.closest('[data-move]');
@@ -128,11 +159,13 @@
       : 'Edit layout off.');
   });
 
-  /** Back to the default order with only Combat open (used by Reset layout and Reset demo). */
+  /** Back to the default order with only Combat open, no full-width cards (used by Reset layout and Reset demo). */
   function resetOrder() {
     order = DEFAULT_ORDER.slice();
     expanded.clear();
     DEFAULT_OPEN.forEach((id) => expanded.add(id));
+    wide.clear();
+    saveWide();
     saveOrder();
     render();
   }

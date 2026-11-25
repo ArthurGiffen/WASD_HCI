@@ -15,7 +15,9 @@ const visible = (el) => !!(el.offsetWidth || el.offsetHeight || el.getClientRect
 function candidates() {
   const dlg = document.querySelector('dialog[open]');
   const scope = dlg || document;
-  return [...scope.querySelectorAll('button, a[href^="#/"], input, select')].filter((el) => visible(el) && !(dlg === null && el.closest('dialog')));
+  // Export would save a real file on every click, and a file picker can't be driven here (import is tested in extra.js).
+  return [...scope.querySelectorAll('button, a[href^="#/"], input, select')].filter((el) => visible(el) && !(dlg === null && el.closest('dialog'))
+    && el.id !== 'export-character' && el.type !== 'file');
 }
 
 const log = [];
@@ -40,6 +42,13 @@ function checkInvariants(lastEl) {
   if (r.equipment.items.some((i) => i.qty < 0)) fail('qty-negative', '');
   if (!(r.identity.level >= 1 && r.identity.level <= 20)) fail('level-range', r.identity.level);
   if (r.equipment.items.filter((i) => i.armor && i.equipped).length > 1) fail('two-armors', '');
+  const used = r.combat.hitDiceUsed || 0;
+  if (!(used >= 0 && used <= r.identity.level)) fail('hit-dice-range', used + ' used at level ' + r.identity.level);
+  const ds = r.combat.deathSaves || { successes: 0, failures: 0 };
+  if (!(ds.successes >= 0 && ds.successes <= 3 && ds.failures >= 0 && ds.failures <= 3)) fail('death-saves-range', JSON.stringify(ds));
+  if (hp.current > 0 && (ds.successes || ds.failures)) fail('death-saves-above-0-hp', JSON.stringify(ds) + ' at HP ' + hp.current);
+  if (!((r.combat.exhaustion || 0) >= 0 && (r.combat.exhaustion || 0) <= 6)) fail('exhaustion-range', r.combat.exhaustion);
+  if (r.spellcasting && (r.spellcasting.slots || []).some((s) => s.used < 0 || s.used > s.total)) fail('slots-range', JSON.stringify(r.spellcasting.slots));
   if (JSON.stringify(WASD.character) !== JSON.stringify(WASD.rules.derive(r))) fail('stale-sheet', 'WASD.character differs from derive(raw)');
   try {
     const saved = localStorage.getItem('wasd.character.v2');

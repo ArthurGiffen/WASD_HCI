@@ -227,3 +227,32 @@
 /* A wide table can scroll inside its own box instead of the whole page */
 .table-scroll { max-width: 100%; overflow-x: auto; }
 .data-table caption { text-align: left; font-weight: 700; margin-bottom: var(--space-2); }
+
+/* ---- Combat card: two columns when the card has room (wide hub card or the Combat page) ---- */
+.combat-layout { container-type: inline-size; }
+.combat-cols { display: grid; grid-template-columns: minmax(0, 1fr); column-gap: var(--space-4); }
+@container (min-width: 40rem) {
+  .combat-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
+}
+.card-view-body:has(.combat-layout) { max-width: 72rem; }
+
+/* Rows of small buttons (death saves, rests, export) */
+.button-row { display: flex; flex-wrap: wrap; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.undo-row { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 0 0 var(--space-3); }
+.undo-row .hint { margin: 0; flex: 1 1 12rem; }
+
+/* Death saves: the counts are written out; the ✓ / ✗ marks only repeat them */
+.death-saves { border: 0.125rem solid var(--color-border); border-radius: var(--radius); padding: var(--space-3); margin: 0 0 var(--space-3); }
+.death-saves__counts { display: flex; flex-wrap: wrap; gap: var(--space-2) var(--space-4); margin: 0 0 var(--space-2); }
+.pips { margin-left: var(--space-1); letter-spacing: 0.1em; }
+
+/* Conditions: checkboxes in a wrapping grid */
+.condition-grid { border: 0; padding: 0; margin: 0 0 var(--space-3); display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr)); gap: 0 var(--space-3); }
+.condition-grid legend { font-weight: 700; margin-bottom: var(--space-2); padding: 0; }
+.choice--inline { align-items: center; min-height: 2.75rem; padding-block: var(--space-1); }
+.choice--inline input { margin: 0; width: 1.5rem; height: 1.5rem; } /* 24px: WCAG 2.2 target size */
+
+/* Guided build: subrace and race choices under the race list */
+.race-options { display: grid; gap: var(--space-3); margin-top: var(--space-3); }
+.race-options .choices { margin-bottom: 0; }

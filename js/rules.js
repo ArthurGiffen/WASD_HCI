@@ -55,6 +55,50 @@
   /** All parts: "1d6+3 piercing + 1d6 fire". Damage types stay separate on purpose. */
   const formatDamage = (parts) => parts.map(formatPart).join(' + ');
 
+  /*
+   * Conditions (SRD 5.1 appendix PH-A), with short reminders of what they do.
+   * Only speed is applied to the numbers automatically (see speedRule below);
+   * everything else is a reminder, because it depends on the situation.
+   */
+  const CONDITIONS = [
+    { id: 'blinded', name: 'Blinded', summary: 'Can’t see; fails checks that need sight. Attacks against you have advantage; your attacks have disadvantage.' },
+    { id: 'charmed', name: 'Charmed', summary: 'Can’t attack or harm the charmer. The charmer has advantage on social checks with you.' },
+    { id: 'deafened', name: 'Deafened', summary: 'Can’t hear; fails checks that need hearing.' },
+    { id: 'frightened', name: 'Frightened', summary: 'Disadvantage on checks and attacks while the source is in sight. Can’t willingly move closer to it.' },
+    { id: 'grappled', name: 'Grappled', summary: 'Speed 0. Ends if the grappler is incapacitated or you are moved out of reach.' },
+    { id: 'incapacitated', name: 'Incapacitated', summary: 'Can’t take actions or reactions.' },
+    { id: 'invisible', name: 'Invisible', summary: 'Can’t be seen without magic. Attacks against you have disadvantage; your attacks have advantage.' },
+    { id: 'paralyzed', name: 'Paralyzed', summary: 'Incapacitated; can’t move or speak. Fails Str and Dex saves. Attacks against you have advantage; hits from within 5 feet are critical.' },
+    { id: 'petrified', name: 'Petrified', summary: 'Turned to stone: incapacitated, can’t move or speak. Fails Str and Dex saves; resistance to all damage.' },
+    { id: 'poisoned', name: 'Poisoned', summary: 'Disadvantage on attack rolls and ability checks.' },
+    { id: 'prone', name: 'Prone', summary: 'Crawl or stand up. Disadvantage on your attacks. Attacks from within 5 feet have advantage, from farther away disadvantage.' },
+    { id: 'restrained', name: 'Restrained', summary: 'Speed 0. Attacks against you have advantage; your attacks have disadvantage. Disadvantage on Dex saves.' },
+    { id: 'stunned', name: 'Stunned', summary: 'Incapacitated; can’t move; speaks only falteringly. Fails Str and Dex saves. Attacks against you have advantage.' },
+    { id: 'unconscious', name: 'Unconscious', summary: 'Incapacitated, can’t move or speak, drops what it holds and falls prone. Fails Str and Dex saves. Attacks have advantage; hits from within 5 feet are critical.' },
+  ];
+  /** Exhaustion levels 1 to 6; each level also has the effects of the levels below it. */
+  const EXHAUSTION = [
+    '',
+    'Disadvantage on ability checks',
+    'Speed halved',
+    'Disadvantage on attack rolls and saving throws',
+    'Hit point maximum halved',
+    'Speed reduced to 0',
+    'Death',
+  ];
+
+  /** Speed after conditions and exhaustion: { speed, note }. */
+  function speedRule(base, conditions, exhaustion) {
+    const zero = conditions.find((c) => c === 'grappled' || c === 'restrained');
+    if (zero) return { speed: 0, note: `${CONDITIONS.find((c) => c.id === zero).name}: speed 0` };
+    if (exhaustion >= 5) return { speed: 0, note: 'Exhaustion 5: speed 0' };
+    if (exhaustion >= 2) return { speed: Math.floor(base / 2), note: `Exhaustion ${exhaustion}: speed halved` };
+    return { speed: base, note: '' };
+  }
+
+  /** Dragonborn breath weapon dice by level (2d6, 3d6 at 6th, 4d6 at 11th, 5d6 at 16th). */
+  const breathDice = (level) => `${level >= 16 ? 5 : level >= 11 ? 4 : level >= 6 ? 3 : 2}d6`;
+
   function derive(raw) {
     const level = raw.identity.level;
     const pb = proficiencyBonus(level);
@@ -112,6 +156,14 @@
     const attacks = raw.combat.attacks
       .filter((a) => !a.itemId || equipped.some((i) => i.id === a.itemId))
       .map((a) => {
+        if (a.special === 'breath') {
+          const saveName = a.save === 'con' ? 'Constitution' : 'Dexterity';
+          return {
+            id: a.id, name: a.name, toHit: null, noCrit: true, range: a.area,
+            note: `DC ${8 + mods.con + pb} ${saveName} save, half damage on a success. Once per short or long rest`,
+            damage: [{ dice: breathDice(level), bonus: 0, type: a.type }],
+          };
+        }
         if (a.special === 'sneakAttack') {
           return {
             id: a.id, name: a.name, toHit: null, range: a.range, note: a.note,
@@ -143,17 +195,30 @@
       };
     }
 
+    // Race and subrace are separate; old saves had the subrace in `race` ("High Elf").
+    const split = WASD.splitRace ? WASD.splitRace(raw.identity.race, raw.identity.subrace) : { race: raw.identity.race, subrace: raw.identity.subrace || '' };
+    const conditions = (raw.combat.conditions || []).filter((id) => CONDITIONS.some((c) => c.id === id));
+    const exhaustion = Math.max(0, Math.min(6, raw.combat.exhaustion || 0));
+    const speed = speedRule(raw.combat.speed + b('speed'), conditions, exhaustion);
+    const hitDiceUsed = Math.max(0, Math.min(level, raw.combat.hitDiceUsed || 0));
+    const ds = raw.combat.deathSaves || {};
+
     return {
-      identity: { ...raw.identity },
+      identity: { ...raw.identity, race: split.race, subrace: split.subrace, raceLabel: split.subrace || split.race },
       proficiencyBonus: pb,
       combat: {
         armorClass,
         armorName: armorItem ? armorItem.name : 'No armor',
         hp: { ...raw.combat.hp },
         initiative: mods.dex,
-        speed: raw.combat.speed + b('speed'),
+        speed: speed.speed,
+        speedNote: speed.note,
         hitDice: `${level}d${raw.combat.hitDie}`,
         hitDie: raw.combat.hitDie,
+        hitDiceLeft: level - hitDiceUsed,
+        deathSaves: { successes: ds.successes || 0, failures: ds.failures || 0 },
+        conditions,
+        exhaustion,
         attacks,
       },
       abilities,
@@ -175,6 +240,8 @@
 
   WASD.rules = {
     ABILITIES,
+    CONDITIONS,
+    EXHAUSTION,
     SKILLS,
     STAT_LABELS,
     abilityMod,

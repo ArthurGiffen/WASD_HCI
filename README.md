@@ -9,6 +9,9 @@ reorder cards. The visual order is also the screen-reader reading order.
 > Status: **demo build**. Combat card (HP, attack rolls), dice roller, all 7 cards, style guide applied, Reset demo.
 > Also: Level Up wizard (2014 rules) and guided first-time build.
 > Also: 5 themes + Large text, accessibility pass (see `ACCESSIBILITY.md`), demo script (`DEMO-SCRIPT.md`).
+> Since the demo: HP undo, death saves, short and long rests (hit dice), spell slots, conditions and exhaustion,
+> export and import of a character file, all 9 SRD races with race and subrace kept separate, and a
+> "Full width" option for open cards (Combat then shows two columns).
 
 ## How to run
 

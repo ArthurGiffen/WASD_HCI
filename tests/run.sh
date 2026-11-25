@@ -23,7 +23,7 @@ OUT_NATIVE="$ROOT_NATIVE/tests/.out"
 mkdir -p "$OUT"
 rm -rf "$OUT"/profile-* "$OUT"/*-browser.log 2>/dev/null   # leftovers from earlier runs (best effort)
 
-QUICK="combat wizards demo extra saved-data layout"
+QUICK="combat wizards demo extra features saved-data layout"
 ALL="$QUICK audit monkey"
 
 find_browser() {
@@ -124,6 +124,7 @@ run_suite() {
     wizards)    build_app_page wizards "suites/wizards.js"; check wizards wizards "" 1280 $((30000*S)) ;;
     demo)       build_app_page demo "suites/demo.js";       check demo demo "" 1280 $((30000*S)) ;;
     extra)      build_app_page extra "suites/extra.js";     check extra extra "" 1280 $((30000*S)) ;;
+    features)   build_app_page features "suites/features.js"; check features features "" 1280 $((60000*S)) ;;
     saved-data) build_app_page saved-data "suites/saved-data.js" "suites/saved-data-head.js"
                 for q in "" "?old=1" "?badjson=1"; do check saved-data saved-data "$q" 1280 $((20000*S)); done ;;
     layout)     sed -e "s|__APP__|$ROOT_URL/index.html|" -e "s|<body>|<body>$REPORTER|" "$ROOT/tests/suites/layout.html" > "$OUT/layout.html"

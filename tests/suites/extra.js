@@ -22,7 +22,7 @@ const phase = sessionStorage.getItem('phase') || 'one';
       // Fighter Hill Dwarf (SRD 5.1: the only dwarf subrace): Con 14+2=16 (+3), Wis 12+1=13.
       // HP 10+3, +1 Dwarven Toughness = 14. Chain mail 16, no Dex. Speed 25. Longsword: Str 15 (+2) + PB 2 = +4, 1d8+2.
       let c = make('Fighter', 'Dwarf');
-      ok(c.identity.race === 'Hill Dwarf', 'Dwarf build is a Hill Dwarf: ' + c.identity.race);
+      ok(c.identity.race === 'Dwarf' && c.identity.subrace === 'Hill Dwarf', `race Dwarf, subrace Hill Dwarf: ${c.identity.race} / ${c.identity.subrace}`);
       ok(c.combat.hp.max === 14 && c.combat.armorClass === 16 && c.combat.speed === 25, `Fighter Hill Dwarf HP14 AC16 Spd25 (got ${c.combat.hp.max}/${c.combat.armorClass}/${c.combat.speed})`);
       ok(c.abilities.find((a) => a.key === 'wis').score === 13 && c.abilities.find((a) => a.key === 'con').score === 16, 'Hill Dwarf: Con 16, Wis 13');
       const names = (ch) => ch.features.map((f) => f.name);
@@ -31,7 +31,7 @@ const phase = sessionStorage.getItem('phase') || 'one';
       ok(c.abilities.find((a) => a.key === 'con').save === 5 && c.abilities.find((a) => a.key === 'str').save === 4, 'Fighter saves: Con +5, Str +4');
       // Cleric Lightfoot Halfling: Dex 12+2=14 (+2), Cha 10+1=11. Con 14 (+2): HP 8+2=10. Scale mail 14 + min(Dex 2, cap 2)=16. Wis 15 (+2): DC 8+2+2=12, attack +4.
       c = make('Cleric', 'Halfling');
-      ok(c.identity.race === 'Lightfoot Halfling' && c.abilities.find((a) => a.key === 'cha').score === 11, 'Lightfoot Halfling, Cha 11');
+      ok(c.identity.race === 'Halfling' && c.identity.subrace === 'Lightfoot Halfling' && c.abilities.find((a) => a.key === 'cha').score === 11, 'Halfling, subrace Lightfoot Halfling, Cha 11');
       ok(c.combat.hp.max === 10 && c.combat.armorClass === 16 && c.combat.speed === 25, `Cleric Halfling HP10 AC16 Spd25 (got ${c.combat.hp.max}/${c.combat.armorClass}/${c.combat.speed})`);
       ok(c.spellcasting.saveDC === 12 && c.spellcasting.attackBonus === 4 && c.spellcasting.ability === 'Wisdom', 'Cleric spell DC 12, +4, Wisdom');
       // SRD 5.1: a 1st-level cleric knows 3 cantrips and picks a Divine Domain (Life is the SRD's only one).
@@ -44,7 +44,7 @@ const phase = sessionStorage.getItem('phase') || 'one';
       ok(c.skills.find((s) => s.name === 'Stealth').bonus === 7 && c.skills.find((s) => s.name === 'Perception').bonus === 3, 'Rogue Elf Stealth +7, Perception +3');
       ok(c.combat.attacks.find((a) => a.id === 'sneak').damage[0].dice === '1d6', 'level 1 Sneak Attack 1d6');
       ok(c.passivePerception === 13, 'passive Perception 13');
-      ok(c.identity.race === 'High Elf' && c.abilities.find((a) => a.key === 'int').score === 13 && names(c).includes('Elf Weapon Training'), 'High Elf: Int 13, Elf Weapon Training');
+      ok(c.identity.race === 'Elf' && c.identity.subrace === 'High Elf' && c.abilities.find((a) => a.key === 'int').score === 13 && names(c).includes('Elf Weapon Training'), 'High Elf: Int 13, Elf Weapon Training');
       // Human Wizard: every score +1 -> Str 9 (-1), Dex 14 (+2), Con 15 (+2), Int 16 (+3). HP 6+2=8. Unarmored 10+2=12. Quarterstaff Str: -1 +2 = +1, 1d6-1.
       c = make('Wizard', 'Human');
       ok(c.combat.hp.max === 8 && c.combat.armorClass === 12, `Human Wizard HP8 AC12 (got ${c.combat.hp.max}/${c.combat.armorClass})`);

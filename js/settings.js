@@ -26,7 +26,7 @@
    */
   const signed = (n) => WASD.signed(n);
   const HEADER_STATS = [
-    { id: 'level', name: 'Level (race and class)', tile: (ch) => ({ label: `${ch.identity.race} ${ch.identity.className}`, value: `Level ${ch.identity.level}` }) },
+    { id: 'level', name: 'Level (race and class)', tile: (ch) => ({ label: `${ch.identity.raceLabel} ${ch.identity.className}`, value: `Level ${ch.identity.level}` }) },
     { id: 'hp', name: 'Hit points', tile: (ch) => ({ label: 'Hit points', value: `${ch.combat.hp.current}<span aria-hidden="true">/</span><span class="visually-hidden"> of </span>${ch.combat.hp.max}` }) },
     { id: 'ac', name: 'Armor class', tile: (ch) => ({ label: 'Armor class', value: `${ch.combat.armorClass}` }) },
     { id: 'initiative', name: 'Initiative', tile: (ch) => ({ label: 'Initiative', value: signed(ch.combat.initiative) }) },

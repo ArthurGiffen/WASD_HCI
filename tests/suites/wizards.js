@@ -95,8 +95,12 @@ const setVal = (sel, v, ev) => { const el = $(sel); el.value = v; el.dispatchEve
     ok(/Choose a class/.test($('#wizard-error').textContent), 'class required');
     click('#className-Wizard'); await tick(100); await next();
     ok(heading() === 'Step 3 of 5: Race', 'race step');
-    ok(/Elf \(High Elf\)/.test($('label[for="race-Elf"]').textContent) && /^Human/.test($('label[for="race-Human"]').textContent.trim()), 'race labels name the SRD subrace');
-    click('#race-Elf'); await tick(100); await next();
+    ok(/Subrace: High Elf/.test($('label[for="race-Elf"]').textContent), 'Elf choice names its SRD subrace');
+    click('#race-Elf'); await tick(100);
+    // Race and subrace are separate choices; the SRD's only elf subrace is pre-selected.
+    ok($('#subrace-High-Elf') && $('#subrace-High-Elf').checked && /Elf subrace/.test($('#subrace-High-Elf').closest('fieldset').querySelector('legend').textContent), 'separate Elf subrace choice, High Elf selected');
+    ok(document.activeElement.id === 'race-Elf', 'focus stays on the race radio after the redraw');
+    await next();
     ok(heading() === 'Step 4 of 5: Ability scores', 'scores step');
     await next();
     ok(/Choose a score for Strength/.test($('#wizard-error').textContent) && document.activeElement.id === 'score-str', 'scores required');

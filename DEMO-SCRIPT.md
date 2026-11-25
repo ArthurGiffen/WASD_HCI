@@ -87,7 +87,7 @@ Say: "A new player builds a character in five short steps. Each dropdown says wh
 
 ## If someone asks
 
-- **Is it accessible?** Every screen, tab, dialog and wizard step was scanned with axe-core in all five themes (165 states, 0 issues). It works keyboard-only, and focus is managed in every dialog. See `ACCESSIBILITY.md`.
+- **Is it accessible?** Every screen, tab, dialog and wizard step was scanned with axe-core in all five themes (195 states, 0 issues). It works keyboard-only, and focus is managed in every dialog. See `ACCESSIBILITY.md`.
 - **Why not drag and drop?** Drag can be added, but buttons work for keyboard, switch and screen-reader users, so they stay either way.
 - **Why can't I click outside a wizard to close it?** So a stray click never throws away your level-up choices. Escape and Cancel still close it.
 - **Which rules?** D&D 5e 2014. The class and race data is a small demo set (4 classes, 4 races, Rogue to level 5).

@@ -12,6 +12,7 @@ WASD.sampleCharacter = {
   identity: {
     name: 'Kira',
     race: 'Human',
+    subrace: '', // humans have no subrace (SRD 5.1)
     className: 'Rogue',
     subclass: 'Thief',
     level: 4,
@@ -38,7 +39,11 @@ WASD.sampleCharacter = {
   combat: {
     hp: { current: 27, max: 31, temp: 0 },
     hitDie: 8,
+    hitDiceUsed: 0, // spent on short rests; a long rest gives back half (minimum 1)
     speed: 30,
+    deathSaves: { successes: 0, failures: 0 }, // only used at 0 HP
+    conditions: [], // ids from WASD.rules.CONDITIONS, e.g. ['poisoned', 'prone']
+    exhaustion: 0, // 0 to 6
     // ability: 'str' | 'dex' | 'finesse' (better of Str/Dex)
     // damage is a LIST of parts so each damage type is rolled and shown separately.
     // itemId: the attack only shows while that equipment item is equipped.

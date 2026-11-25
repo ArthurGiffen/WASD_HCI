@@ -7,8 +7,9 @@
  * Only what the demo needs is here:
  *   - Rogue: level 1 and level 5 features (Kira levels 4 -> 5).
  *   - Fighter, Rogue, Wizard, Cleric: level 1 starting setup for the guided build.
- *   - Human, Elf, Dwarf, Halfling, each with the one subrace the SRD has
- *     (High Elf, Hill Dwarf, Lightfoot Halfling; humans have none).
+ *   - Every SRD race: Human, Elf, Dwarf, Halfling, Dragonborn, Gnome,
+ *     Half-Elf, Half-Orc, Tiefling. Race and subrace are separate; the SRD
+ *     has one subrace for Elf, Dwarf, Gnome and Halfling (see RACES below).
  *   - Cleric: the Life Domain, the only Divine Domain in the SRD.
  * A level with no entry in `features` shows "no feature data" in Level Up,
  * so the app never invents rules.
@@ -111,12 +112,24 @@ WASD.classData = {
   },
 };
 
+/*
+ * RACES: every race in the SRD 5.1, 2014 rules. Race and subrace are kept
+ * apart: `subraces` lists the subraces a race has (the SRD has one each for
+ * Dwarf, Elf, Gnome and Halfling; the others have none).
+ * Some races ask for a choice in the guided build:
+ *   ancestry      Dragonborn: the dragon type sets the breath weapon and resistance
+ *   abilityPicks  Half-Elf: +1 to two abilities other than Charisma
+ *   skillPicks    Half-Elf: proficiency in two skills
+ */
+const DARKVISION = { name: 'Darkvision', summary: 'See in dim light within 60 feet as if it were bright light, and in darkness as if it were dim light (no colors).' };
+
 WASD.raceData = {
   Human: {
     bonuses: { str: 1, dex: 1, con: 1, int: 1, wis: 1, cha: 1 },
     speed: 30,
     blurb: '+1 to every ability score.',
     features: [],
+    subraces: [],
   },
   Elf: {
     bonuses: { dex: 2 },
@@ -124,12 +137,12 @@ WASD.raceData = {
     blurb: '+2 Dexterity. Darkvision, keen senses, hard to charm.',
     skills: { Perception: 'proficient' },
     features: [
-      { name: 'Darkvision', summary: 'See in dim light within 60 feet as if it were bright light.' },
+      DARKVISION,
       { name: 'Keen Senses', summary: 'Proficient in Perception.' },
       { name: 'Fey Ancestry', summary: 'Advantage on saves against being charmed; magic can’t put you to sleep.' },
       { name: 'Trance', summary: 'Meditate for 4 hours instead of sleeping 8.' },
     ],
-    subrace: {
+    subraces: [{
       name: 'High Elf',
       bonuses: { int: 1 },
       blurb: '+1 Intelligence, elf weapon training, one wizard cantrip.',
@@ -137,20 +150,20 @@ WASD.raceData = {
         { name: 'Elf Weapon Training', summary: 'Proficient with the longsword, shortsword, shortbow and longbow.' },
         { name: 'Cantrip', summary: 'You know one wizard cantrip of your choice, cast with Intelligence. This prototype doesn’t pick it for you.' },
       ],
-    },
+    }],
   },
   Dwarf: {
     bonuses: { con: 2 },
     speed: 25,
-    blurb: '+2 Constitution. Darkvision, tough against poison.',
+    blurb: '+2 Constitution. Darkvision, tough against poison. Heavy armor doesn’t slow you.',
     features: [
-      { name: 'Darkvision', summary: 'See in dim light within 60 feet as if it were bright light.' },
+      DARKVISION,
       { name: 'Dwarven Resilience', summary: 'Advantage on saves against poison, and resistance to poison damage.' },
       { name: 'Dwarven Combat Training', summary: 'Proficient with the battleaxe, handaxe, light hammer and warhammer.' },
       { name: 'Tool Proficiency', summary: 'Proficient with one set of artisan’s tools of your choice: smith’s tools, brewer’s supplies or mason’s tools.' },
       { name: 'Stonecunning', summary: 'On History checks about where stonework came from, you count as proficient and add double your proficiency bonus.' },
     ],
-    subrace: {
+    subraces: [{
       name: 'Hill Dwarf',
       bonuses: { wis: 1 },
       hpPerLevel: 1, // Dwarven Toughness
@@ -158,63 +171,170 @@ WASD.raceData = {
       features: [
         { name: 'Dwarven Toughness', summary: 'Your hit point maximum goes up by 1, and by 1 more every time you gain a level.' },
       ],
-    },
+    }],
   },
   Halfling: {
     bonuses: { dex: 2 },
     speed: 25,
-    blurb: '+2 Dexterity. Lucky and brave.',
+    blurb: '+2 Dexterity. Small, lucky and brave.',
     features: [
       { name: 'Lucky', summary: 'When you roll a 1 on an attack, check or save, reroll it and use the new roll.' },
       { name: 'Brave', summary: 'Advantage on saves against being frightened.' },
       { name: 'Halfling Nimbleness', summary: 'Move through the space of any creature larger than you.' },
     ],
-    subrace: {
+    subraces: [{
       name: 'Lightfoot Halfling',
       bonuses: { cha: 1 },
       blurb: '+1 Charisma, can hide behind larger creatures.',
       features: [
         { name: 'Naturally Stealthy', summary: 'You can try to hide even when only a creature at least one size larger than you is in the way.' },
       ],
-    },
+    }],
+  },
+  Dragonborn: {
+    bonuses: { str: 2, cha: 1 },
+    speed: 30,
+    blurb: '+2 Strength, +1 Charisma. Breath weapon and a damage resistance from your dragon ancestry.',
+    features: [], // Draconic Ancestry, Breath Weapon and Damage Resistance depend on the ancestry (see raceInfo)
+    subraces: [],
+    ancestry: [
+      { id: 'black', name: 'Black', type: 'acid', area: '5 by 30 ft. line', save: 'dex' },
+      { id: 'blue', name: 'Blue', type: 'lightning', area: '5 by 30 ft. line', save: 'dex' },
+      { id: 'brass', name: 'Brass', type: 'fire', area: '5 by 30 ft. line', save: 'dex' },
+      { id: 'bronze', name: 'Bronze', type: 'lightning', area: '5 by 30 ft. line', save: 'dex' },
+      { id: 'copper', name: 'Copper', type: 'acid', area: '5 by 30 ft. line', save: 'dex' },
+      { id: 'gold', name: 'Gold', type: 'fire', area: '15 ft. cone', save: 'dex' },
+      { id: 'green', name: 'Green', type: 'poison', area: '15 ft. cone', save: 'con' },
+      { id: 'red', name: 'Red', type: 'fire', area: '15 ft. cone', save: 'dex' },
+      { id: 'silver', name: 'Silver', type: 'cold', area: '15 ft. cone', save: 'con' },
+      { id: 'white', name: 'White', type: 'cold', area: '15 ft. cone', save: 'con' },
+    ],
+  },
+  Gnome: {
+    bonuses: { int: 2 },
+    speed: 25,
+    blurb: '+2 Intelligence. Small, darkvision, hard to affect with magic.',
+    features: [
+      DARKVISION,
+      { name: 'Gnome Cunning', summary: 'Advantage on Intelligence, Wisdom and Charisma saves against magic.' },
+    ],
+    subraces: [{
+      name: 'Rock Gnome',
+      bonuses: { con: 1 },
+      blurb: '+1 Constitution, knows magic items and builds tiny clockwork devices.',
+      features: [
+        { name: 'Artificer’s Lore', summary: 'On History checks about magic items, alchemical objects or technological devices, add twice your proficiency bonus.' },
+        { name: 'Tinker', summary: 'Proficient with tinker’s tools. With 1 hour and 10 gp of materials, build a Tiny clockwork device (toy, fire starter or music box) that lasts 24 hours; up to three at a time.' },
+      ],
+    }],
+  },
+  'Half-Elf': {
+    bonuses: { cha: 2 },
+    speed: 30,
+    blurb: '+2 Charisma and +1 to two other abilities you choose. Darkvision, hard to charm, two extra skills.',
+    features: [
+      DARKVISION,
+      { name: 'Fey Ancestry', summary: 'Advantage on saves against being charmed; magic can’t put you to sleep.' },
+      { name: 'Skill Versatility', summary: 'Proficiency in two skills of your choice.' },
+    ],
+    subraces: [],
+    abilityPicks: { count: 2, value: 1, exclude: ['cha'] },
+    skillPicks: 2,
+  },
+  'Half-Orc': {
+    bonuses: { str: 2, con: 1 },
+    speed: 30,
+    blurb: '+2 Strength, +1 Constitution. Darkvision, menacing, hard to bring down.',
+    skills: { Intimidation: 'proficient' },
+    features: [
+      DARKVISION,
+      { name: 'Menacing', summary: 'Proficient in Intimidation.' },
+      { name: 'Relentless Endurance', summary: 'When you drop to 0 hit points but aren’t killed outright, you can drop to 1 instead. Once per long rest.' },
+      { name: 'Savage Attacks', summary: 'On a critical hit with a melee weapon, roll one of the weapon’s damage dice one more time and add it.' },
+    ],
+    subraces: [],
+  },
+  Tiefling: {
+    bonuses: { int: 1, cha: 2 },
+    speed: 30,
+    blurb: '+2 Charisma, +1 Intelligence. Darkvision, fire resistance, infernal magic.',
+    features: [
+      DARKVISION,
+      { name: 'Hellish Resistance', summary: 'Resistance to fire damage.' },
+      { name: 'Infernal Legacy', summary: 'You know the thaumaturgy cantrip. At 3rd level, cast hellish rebuke as a 2nd-level spell once per long rest; at 5th level, darkness once per long rest. Charisma is the spellcasting ability.' },
+    ],
+    subraces: [],
   },
 };
 
 /**
- * A race as the sheet uses it, with its subrace (if any) folded in.
- * Accepts the base name ('Elf') or the name on the sheet ('High Elf').
- *   { name: 'High Elf', base: 'Elf', bonuses: { dex: 2, int: 1 },
- *     bonusParts: { dex: [{ from: 'Elf', value: 2 }], int: [{ from: 'High Elf', value: 1 }] },
- *     speed, skills, hpPerLevel, blurb, features: [{ name, summary, source }] }
- * Returns null for a race that isn't in this file.
+ * Old saves stored the subrace as the race ("High Elf"). Split it back into
+ * { race: 'Elf', subrace: 'High Elf' }. A plain race comes back unchanged.
  */
-WASD.raceInfo = function (name) {
-  const key = Object.keys(WASD.raceData).find((k) => k === name
-    || (WASD.raceData[k].subrace && WASD.raceData[k].subrace.name === name));
-  if (!key) return null;
-  const r = WASD.raceData[key];
-  const sub = r.subrace || null;
+WASD.splitRace = function (race, subrace) {
+  if (WASD.raceData[race]) return { race, subrace: subrace || '' };
+  const key = Object.keys(WASD.raceData).find((k) => WASD.raceData[k].subraces.some((s) => s.name === race));
+  return key ? { race: key, subrace: race } : { race, subrace: subrace || '' };
+};
+
+/**
+ * A race as the sheet uses it, with the chosen subrace and choices folded in.
+ *   WASD.raceInfo('Elf', { subrace: 'High Elf' })
+ *   WASD.raceInfo('Dragonborn', { ancestry: 'red' })
+ *   WASD.raceInfo('Half-Elf', { abilityPicks: ['dex', 'con'], skillPicks: ['Stealth', 'Insight'] })
+ * -> { race, subrace, label, bonuses, bonusParts, speed, skills, hpPerLevel, blurb,
+ *      features: [{ name, summary, source }], breath: null | { type, area, save } }
+ * Accepts an old-style subrace name too ('High Elf'). Returns null for an unknown race.
+ * A race with subraces gets its first (in the SRD, only) subrace when none is given.
+ */
+WASD.raceInfo = function (name, opts) {
+  const o = opts || {};
+  const split = WASD.splitRace(name, o.subrace);
+  const r = WASD.raceData[split.race];
+  if (!r) return null;
+  const sub = r.subraces.find((s) => s.name === split.subrace) || r.subraces[0] || null;
+
   const bonuses = {};
   const bonusParts = {};
-  [[key, r.bonuses], [sub && sub.name, sub && sub.bonuses]].forEach(([from, list]) => {
-    Object.keys(list || {}).forEach((k) => {
-      bonuses[k] = (bonuses[k] || 0) + list[k];
-      (bonusParts[k] = bonusParts[k] || []).push({ from, value: list[k] });
-    });
-  });
+  const addBonus = (from, key, value) => {
+    bonuses[key] = (bonuses[key] || 0) + value;
+    (bonusParts[key] = bonusParts[key] || []).push({ from, value });
+  };
+  Object.keys(r.bonuses).forEach((k) => addBonus(split.race, k, r.bonuses[k]));
+  if (sub) Object.keys(sub.bonuses).forEach((k) => addBonus(sub.name, k, sub.bonuses[k]));
+  if (r.abilityPicks) (o.abilityPicks || []).filter(Boolean).forEach((k) => addBonus(split.race, k, r.abilityPicks.value));
+
+  const skills = { ...(r.skills || {}) };
+  if (r.skillPicks) (o.skillPicks || []).filter(Boolean).forEach((s) => { skills[s] = 'proficient'; });
+
+  const features = r.features.map((x) => ({ ...x, source: split.race }));
+  let breath = null;
+  if (r.ancestry) {
+    const a = r.ancestry.find((x) => x.id === o.ancestry);
+    if (a) {
+      breath = { type: a.type, area: a.area, save: a.save };
+      const saveName = a.save === 'dex' ? 'Dexterity' : 'Constitution';
+      features.push(
+        { name: 'Draconic Ancestry', summary: `${a.name} dragon: ${a.type} damage.`, source: split.race },
+        { name: 'Breath Weapon', summary: `Action: exhale ${a.type} in a ${a.area}. Each creature in it makes a ${saveName} save (DC 8 + Constitution modifier + proficiency bonus): 2d6 damage, half on a success. 3d6 at 6th level, 4d6 at 11th, 5d6 at 16th. Once per short or long rest.`, source: split.race },
+        { name: 'Damage Resistance', summary: `Resistance to ${a.type} damage.`, source: split.race },
+      );
+    }
+  }
+  if (sub) features.push(...sub.features.map((x) => ({ ...x, source: sub.name })));
+
   return {
-    name: sub ? sub.name : key,
-    base: key,
+    race: split.race,
+    subrace: sub ? sub.name : '',
+    label: sub ? sub.name : split.race,
     bonuses,
     bonusParts,
     speed: r.speed,
-    skills: r.skills || {},
+    skills,
     hpPerLevel: (sub && sub.hpPerLevel) || 0,
-    blurb: sub ? `${r.blurb} ${sub.name}: ${sub.blurb}` : r.blurb,
-    features: [
-      ...r.features.map((x) => ({ ...x, source: key })),
-      ...(sub ? sub.features.map((x) => ({ ...x, source: sub.name })) : []),
-    ],
+    blurb: r.blurb,
+    features,
+    breath,
   };
 };
 

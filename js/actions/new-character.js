@@ -8,9 +8,10 @@
  * alignment, skill choices and spells use simple defaults. "Reset demo"
  * brings Kira back.
  *
- * Subraces: the SRD has exactly one per race (High Elf, Hill Dwarf, Lightfoot
- * Halfling), so picking the race picks the subrace too (WASD.raceInfo).
- * The Cleric's Divine Domain is likewise the SRD's only one, Life.
+ * Race and subrace are separate choices on the Race step. The SRD has one
+ * subrace for Elf, Dwarf, Gnome and Halfling, so it is pre-selected. Dragonborn
+ * pick a dragon ancestry; Half-Elves pick two +1 abilities and two skills.
+ * The Cleric's Divine Domain is the SRD's only one, Life.
  */
 (function (WASD) {
   'use strict';
@@ -27,10 +28,18 @@
     return out;
   }
 
+  /** The race choices from the wizard, in the shape WASD.raceInfo() takes. */
+  const raceOpts = (f) => ({
+    subrace: f.subrace, ancestry: f.ancestry,
+    abilityPicks: [f.racePick1, f.racePick2], skillPicks: [f.raceSkill1, f.raceSkill2],
+  });
+  /** Safe id from a value with spaces ("High Elf" -> "High-Elf"). */
+  const slug = (v) => String(v).replace(/[^A-Za-z0-9]+/g, '-');
+
   /** Turn the wizard's answers into a raw character (same shape as sample-character.js). */
   function build(f) {
     const cls = WASD.classData[f.className];
-    const race = WASD.raceInfo(f.race);
+    const race = WASD.raceInfo(f.race, raceOpts(f));
     const base = baseScores(f);
     const abilityScores = {};
     ABILITIES.forEach((a) => { abilityScores[a.key] = base[a.key] + (race.bonuses[a.key] || 0); });
@@ -51,12 +60,13 @@
       damage: [{ dice: s.weapon.dice, type: s.weapon.type }],
     }];
     if (s.sneakAttack) attacks.push({ id: 'sneak', name: 'Sneak Attack', special: 'sneakAttack', note: 'once per turn' });
+    if (race.breath) attacks.push({ id: 'breath', name: 'Breath Weapon', special: 'breath', ...race.breath });
 
     const notYet = 'Not written yet.';
     return {
       schema: WASD.SCHEMA,
       identity: {
-        name: f.charName.trim(), race: race.name, className: f.className, subclass: cls.subclass || '',
+        name: f.charName.trim(), race: race.race, subrace: race.subrace, className: f.className, subclass: cls.subclass || '',
         level: 1, background: 'Not chosen yet', alignment: 'Not chosen yet', experience: 0,
       },
       abilityScores,
@@ -74,16 +84,63 @@
     };
   }
 
-  /** Radio "cards" for class and race. */
+  /** Radio "cards" for class, race and subrace. */
   function choices(name, legend, options, current) {
-    const items = options.map((o) => `
+    const items = options.map((o) => {
+      const id = `${name}-${slug(o.value)}`;
+      return `
       <div class="choice choice--card">
-        <input type="radio" name="${name}" id="${name}-${o.value}" value="${o.value}"${current === o.value ? ' checked' : ''}
-               aria-describedby="${name}-${o.value}-desc">
-        <label for="${name}-${o.value}"><strong>${esc(o.label || o.value)}</strong>
-          <span class="choice__desc" id="${name}-${o.value}-desc">${esc(o.desc)}</span></label>
-      </div>`).join('');
-    return `<fieldset class="choices"><legend>${legend}</legend>${items}</fieldset>`;
+        <input type="radio" name="${name}" id="${id}" value="${esc(o.value)}"${current === o.value ? ' checked' : ''}
+               aria-describedby="${id}-desc">
+        <label for="${id}"><strong>${esc(o.label || o.value)}</strong>
+          <span class="choice__desc" id="${id}-desc">${esc(o.desc)}</span></label>
+      </div>`;
+    }).join('');
+    return `<fieldset class="choices"><legend>${esc(legend)}</legend>${items}</fieldset>`;
+  }
+
+  /** A labelled dropdown that saves into state.fields[name]. */
+  function picker(name, label, options, current) {
+    const opts = options.map((o) => `<option value="${esc(o.value)}"${current === o.value ? ' selected' : ''}>${esc(o.label)}</option>`).join('');
+    return `
+      <div class="field">
+        <label for="${name}">${esc(label)}</label>
+        <select class="input" id="${name}" name="${name}"><option value="">Choose</option>${opts}</select>
+      </div>`;
+  }
+
+  /** The extra choices under the race list: subrace, dragon ancestry, Half-Elf picks. */
+  function raceOptions(f) {
+    const r = WASD.raceData[f.race];
+    if (!r) return '';
+    let html = '';
+    // Subrace: keep the player's pick if it belongs to this race, otherwise pre-select the first.
+    if (r.subraces.length) {
+      if (!r.subraces.some((s) => s.name === f.subrace)) f.subrace = r.subraces[0].name;
+      html += choices('subrace', `${f.race} subrace`, r.subraces.map((s) => ({ value: s.name, desc: s.blurb })), f.subrace);
+      if (r.subraces.length === 1) html += '<p class="hint">The SRD has one subrace for this race, so it is chosen for you.</p>';
+    } else {
+      f.subrace = '';
+      html += `<p class="hint">${esc(f.race)} has no subraces.</p>`;
+    }
+    if (r.ancestry) {
+      html += picker('ancestry', 'Draconic ancestry (sets your breath weapon and resistance)', r.ancestry.map((a) => ({
+        value: a.id, label: `${a.name}: ${a.type}, ${a.area}, ${a.save === 'dex' ? 'Dexterity' : 'Constitution'} save`,
+      })), f.ancestry);
+    }
+    if (r.abilityPicks) {
+      const abil = ABILITIES.filter((a) => !r.abilityPicks.exclude.includes(a.key)).map((a) => ({ value: a.key, label: a.name }));
+      html += picker('racePick1', `First ability +${r.abilityPicks.value}`, abil, f.racePick1);
+      html += picker('racePick2', `Second ability +${r.abilityPicks.value}`, abil, f.racePick2);
+    }
+    if (r.skillPicks) {
+      // Skills the class already gives are left out, so both picks add something new.
+      const have = Object.keys((WASD.classData[f.className] || { start: { skills: {} } }).start.skills);
+      const skills = WASD.rules.SKILLS.filter((s) => !have.includes(s.name)).map((s) => ({ value: s.name, label: s.name }));
+      html += picker('raceSkill1', 'First skill (Skill Versatility)', skills, f.raceSkill1);
+      html += picker('raceSkill2', 'Second skill (Skill Versatility)', skills, f.raceSkill2);
+    }
+    return `<div class="race-options">${html}</div>`;
   }
 
   const steps = [
@@ -110,20 +167,37 @@
     },
     {
       title: 'Race',
+      rerenderOnChange: true,
       render: ({ fields: f }) => `
-        <p class="hint">Our rules data (SRD 5.1) has one subrace for each race, so it is chosen with the race. Humans have no subrace.</p>
         ${choices('race', 'Choose a race', Object.keys(WASD.raceData).map((k) => {
-          const r = WASD.raceInfo(k);
-          return { value: k, label: r.name === k ? k : `${k} (${r.name})`, desc: `${r.blurb} Speed ${r.speed} ft.` };
-        }), f.race)}`,
-      validate: ({ fields: f }) => (f.race ? null : { message: 'Choose a race.', field: 'race-Human' }),
+          const r = WASD.raceData[k];
+          const subs = r.subraces.length ? ` Subrace: ${r.subraces.map((s) => s.name).join(', ')}.` : '';
+          return { value: k, desc: `${r.blurb} Speed ${r.speed} ft.${subs}` };
+        }), f.race)}
+        ${raceOptions(f)}`,
+      validate({ fields: f }) {
+        const r = WASD.raceData[f.race];
+        if (!r) return { message: 'Choose a race.', field: 'race-Human' };
+        if (r.ancestry && !f.ancestry) return { message: 'Choose a draconic ancestry.', field: 'ancestry' };
+        if (r.abilityPicks) {
+          if (!f.racePick1) return { message: 'Choose the first ability to raise.', field: 'racePick1' };
+          if (!f.racePick2) return { message: 'Choose the second ability to raise.', field: 'racePick2' };
+          if (f.racePick1 === f.racePick2) return { message: 'Choose two different abilities.', field: 'racePick2' };
+        }
+        if (r.skillPicks) {
+          if (!f.raceSkill1) return { message: 'Choose the first skill.', field: 'raceSkill1' };
+          if (!f.raceSkill2) return { message: 'Choose the second skill.', field: 'raceSkill2' };
+          if (f.raceSkill1 === f.raceSkill2) return { message: 'Choose two different skills.', field: 'raceSkill2' };
+        }
+        return null;
+      },
     },
     {
       title: 'Ability scores',
       rerenderOnChange: true,
       render({ fields: f }) {
         const base = baseScores(f);
-        const race = WASD.raceInfo(f.race);
+        const race = WASD.raceInfo(f.race, raceOpts(f));
         const usedBy = {};
         ABILITIES.forEach((a) => { if (base[a.key]) usedBy[base[a.key]] = a.name; });
         const left = WASD.STANDARD_ARRAY.filter((n) => !usedBy[n]);
@@ -188,7 +262,8 @@
         return `
           <dl class="pair-list review-list">
             <div><dt>Name</dt><dd>${esc(raw.identity.name)}</dd></div>
-            <div><dt>Race and class</dt><dd>${esc(raw.identity.race)} ${esc(f.className)}${raw.identity.subclass ? ` (${esc(raw.identity.subclass)})` : ''}, level 1</dd></div>
+            <div><dt>Race</dt><dd>${esc(raw.identity.race)}${raw.identity.subrace ? `, subrace ${esc(raw.identity.subrace)}` : ''}</dd></div>
+            <div><dt>Class</dt><dd>${esc(f.className)}${raw.identity.subclass ? ` (${esc(raw.identity.subclass)})` : ''}, level 1</dd></div>
             <div><dt>Hit points</dt><dd>${ch.combat.hp.max}</dd></div>
             <div><dt>Armor Class</dt><dd>${ch.combat.armorClass} (${esc(ch.combat.armorName)})</dd></div>
             <div><dt>Speed</dt><dd>${ch.combat.speed} ft</dd></div>
@@ -211,7 +286,7 @@
       onFinish({ fields: f }) {
         WASD.lastRoll = null;
         WASD.setCharacter(build(f));
-        WASD.announce(`Created ${f.charName.trim()}, a level 1 ${WASD.raw.identity.race} ${f.className}. HP ${WASD.raw.combat.hp.max}, AC ${WASD.character.combat.armorClass}.`);
+        WASD.announce(`Created ${f.charName.trim()}, a level 1 ${WASD.character.identity.raceLabel} ${f.className}. HP ${WASD.raw.combat.hp.max}, AC ${WASD.character.combat.armorClass}.`);
       },
       onCancel() {
         WASD.announce('New character cancelled. Nothing changed.');
